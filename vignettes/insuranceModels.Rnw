@@ -1,0 +1,131 @@
+\documentclass[12pt]{article}
+
+\usepackage[margin=1.0in]{geometry}
+\usepackage{parskip}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+The classes are demonstrated below.
+
+<<echo=TRUE>>=
+library(stocins)
+@
+
+\section{Survival Models}
+
+<<echo=TRUE, fig=TRUE>>=
+mort = mortassumptions(list(x = 40, table = "MaleMort82"))
+
+plot(x = seq(0, 70, 1), y = kpx(seq(0, 70, 1), mort), xlab = "k",
+     ylab = "kpx", type = 'l')
+@
+
+\section{Single Insurance Product}
+
+<<echo=TRUE>>=
+oumodel = iratemodel(list(delta0 = 0.08, delta = 0.06,
+                          alpha = 0.1, sigma = 0.01), "ou")
+@
+
+\subsection{Single Term Insurance Product}
+
+<<echo=TRUE>>=
+termins = insurance(params = list(n=10, d=100, e=0), 
+                    "isingle", "term")
+
+z.moment(1, termins, mort, oumodel)
+z.sd(termins, mort, oumodel)
+z.sk(termins, mort, oumodel)
+@
+
+\subsection{Single Endowment Insurance Product}
+
+<<echo=TRUE>>=
+endowins = insurance(params = list(n=10, d=100, e=100), 
+                     "isingle", "endow")
+
+z.moment(1, endowins, mort, oumodel)
+z.sd(endowins, mort, oumodel)
+z.sk(endowins, mort, oumodel)
+@
+
+\section{Insurance Portfolio}
+
+\subsection{Term Insurance Portfolio}
+
+<<echo=TRUE>>=
+termport10 = insurance(params = list(single = termins, c = 10), 
+                       "iport", "term")
+termport1e09 = insurance(params = list(single = termins, c = 1e09), 
+                         "iport", "term")
+
+z.moment(1, termport10, mort, oumodel) / termport10$c
+z.sd(termport10, mort, oumodel) / termport10$c
+z.sk(termport10, mort, oumodel)
+
+z.moment(1, termport1e09, mort, oumodel) / termport1e09$c
+z.sd(termport1e09, mort, oumodel) / termport1e09$c
+z.sk(termport1e09, mort, oumodel)
+@
+
+\subsection{Endowment Insurance Portfolio}
+
+<<echo=TRUE>>=
+endowport10 = insurance(params = list(single = endowins, c = 10),
+                        "iport", "endow")
+endowport1e09 = insurance(params = list(single = endowins, c = 1e09), 
+                        "iport", "endow")
+
+z.moment(1, endowport10, mort, oumodel) / endowport10$c
+z.sd(endowport10, mort, oumodel) / endowport10$c
+z.sk(endowport10, mort, oumodel)
+
+z.moment(1, endowport1e09, mort, oumodel) / endowport1e09$c
+z.sd(endowport1e09, mort, oumodel) / endowport1e09$c
+z.sk(endowport1e09, mort, oumodel)
+@
+
+\section{Group of Insurance Portfolios}
+
+<<echo=TRUE>>=
+single1 = insurance(params = list(n=10, d=50,  e=50), "isingle", "endow")
+single2 = insurance(params = list(n=5,  d=100, e=50), "isingle", "endow")
+single3 = insurance(params = list(n=10, d=150, e=0),  "isingle", "endow")
+single4 = insurance(params = list(n=10, d=50,  e=0),  "isingle", "endow")
+single5 = insurance(params = list(n=10, d=100, e=100),"isingle", "endow")
+single6 = insurance(params = list(n=5,  d=75,  e=0),  "isingle", "endow")
+single7 = insurance(params = list(n=5,  d=25,  e=0),  "isingle", "endow")
+single8 = insurance(params = list(n=10, d=50,  e=50), "isingle", "endow")
+
+mort1 = mortassumptions(params = list(x = 30, table = "MaleMort82"))
+mort2 = mortassumptions(params = list(x = 35, table = "MaleMort82"))
+mort3 = mortassumptions(params = list(x = 50, table = "MaleMort82"))
+mort4 = mortassumptions(params = list(x = 30, table = "FemaleMort82"))
+mort5 = mortassumptions(params = list(x = 40, table = "FemaleMort82"))
+mort6 = mortassumptions(params = list(x = 40, table = "MaleMort82Reduced"))
+mort7 = mortassumptions(params = list(x = 45, table = "FemaleMort82Reduced"))
+mort8 = mortassumptions(params = list(x = 55, table = "FemaleMort82"))
+
+port1 = insurance(params = list(single = single1, c = 1000), "iport", "endow")
+port2 = insurance(params = list(single = single2, c = 2500), "iport", "endow")
+port3 = insurance(params = list(single = single3, c = 2000), "iport", "endow")
+port4 = insurance(params = list(single = single4, c = 1500), "iport", "endow")
+port5 = insurance(params = list(single = single5, c = 500), "iport", "endow")
+port6 = insurance(params = list(single = single6, c = 2500), "iport", "endow")
+port7 = insurance(params = list(single = single7, c = 3000), "iport", "endow")
+port8 = insurance(params = list(single = single8, c = 500), "iport", "endow")
+
+insgroup = insurance(list(port1, port2, port3, port4, port5, 
+                          port6, port7, port8), "igroup")
+
+mortgroup = list(mort1, mort2, mort3, mort4, mort5, mort6, mort7, mort8)
+
+z.moment(1, insgroup, mortgroup, oumodel) / insgroup$c
+z.moment(2, insgroup, mortgroup, oumodel) / insgroup$c^2
+z.sd(insgroup, mortgroup, oumodel) / insgroup$c
+z.invrisk(insgroup, mortgroup, oumodel) / insgroup$c^2
+z.insrisk(insgroup, mortgroup, oumodel) / insgroup$c^2
+@
+
+\end{document}

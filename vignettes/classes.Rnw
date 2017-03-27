@@ -1,0 +1,34 @@
+\documentclass{article}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+\section{Classes}
+
+The following classes are provided:
+
+\begin{itemize}
+\item \texttt{iratemodel}: Interest rate models
+\begin{itemize}
+\item \texttt{ou}: Ornstein-Uhlenbeck process
+\item \texttt{wiener}: Wiener process
+\item \texttt{second}: Second order stochastic differential equation
+\end{itemize}
+\item \texttt{mortassumptions}: Mortality assumptions
+\item \texttt{insurance}: Insurance product
+\begin{itemize}
+\item \texttt{isingle}: Single insurance product
+\begin{itemize}
+\item \texttt{termsingle}: Single term insurance product
+\item \texttt{endowsingle}: Single endowment insurance product
+\end{itemize}
+\item \texttt{iport}: Insurance portfolio (identical policies)
+\begin{itemize}
+\item \texttt{termport}: Term insurance portfolio
+\item \texttt{endowport}: Endowment insurance portfolio
+\end{itemize}
+\item \texttt{igroup}: Group of insurance portfolios
+\end{itemize}
+\end{itemize}
+
+\end{document}

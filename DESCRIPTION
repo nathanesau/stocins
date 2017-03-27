@@ -1,0 +1,15 @@
+Package: stocins
+Type: Package
+Title: An Application of Stochastic Interest Rate Models
+  in Life Assurance
+Version: 0.1.0
+Author: Nathan Esau
+Maintainer: Nathan <nesau@sfu.ca>
+Description: Implements functions described in:
+  Parker, Gary. An application of stochastic interest rate models
+  in life assurance. Diss. Heriot-Watt University, 1992.
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+Imports: lattice
+RoxygenNote: 5.0.1
