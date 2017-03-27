@@ -2,16 +2,16 @@
 % Please edit documentation in R/insuranceModels.R
 \name{igroup}
 \alias{igroup}
-\alias{z.insrisk}
-\alias{z.invrisk}
+\alias{z.insrisk.igroup}
+\alias{z.invrisk.igroup}
 \alias{z.moment.igroup}
 \title{Group of Insurance Portfolios}
 \usage{
 \method{z.moment}{igroup}(moment, ins, mort, irm)
 
-z.insrisk(ins, mort, irm)
+\method{z.insrisk}{igroup}(ins, mort, irm)
 
-z.invrisk(ins, mort, irm)
+\method{z.invrisk}{igroup}(ins, mort, irm)
 }
 \description{
 An endowment insurance pays a benefit of \code{d} if the policyholder

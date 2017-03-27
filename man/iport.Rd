@@ -2,16 +2,16 @@
 % Please edit documentation in R/insuranceModels.R
 \name{iport}
 \alias{iport}
-\alias{z.insrisk}
-\alias{z.invrisk}
+\alias{z.insrisk.iport}
+\alias{z.invrisk.iport}
 \alias{z.moment.iport}
 \title{Insurance portfolio (identical policies)}
 \usage{
 z.moment.iport(moment, ins, mort, irm)
 
-z.insrisk(ins, mort, irm)
+\method{z.insrisk}{iport}(ins, mort, irm)
 
-z.invrisk(ins, mort, irm)
+\method{z.invrisk}{iport}(ins, mort, irm)
 }
 \description{
 An endowment insurance pays a benefit of \code{d} if the policyholder

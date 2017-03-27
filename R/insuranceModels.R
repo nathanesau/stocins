@@ -314,16 +314,16 @@ z.moment.isingle <- function(moment, ins, mort, irm)
 
 #' @rdname isingle
 #' @export
-z.insrisk <- function(ins, mort, irm)
+z.insrisk.isingle <- function(ins, mort, irm)
 {
-  stop("z.insrisk not implemented for isingle classes")
+  UseMethod("z.insrisk.isingle", ins)
 }
 
 #' @rdname isingle
 #' @export
-z.invrisk <- function(ins, mort, irm)
+z.invrisk.isingle <- function(ins, mort, irm)
 {
-  stop("z.invrisk not implemented for isingle classes")
+  UseMethod("z.invrisk.isingle", ins)
 }
 
 #### Single Term Insurance Product ####
@@ -427,6 +427,42 @@ z.ev.twoone.isingle.termsingle <- function(ins, mort, irm)
   }
   
   total
+}
+
+#' @rdname termsingle
+#' @export
+z.insrisk.isingle.termsingle <- function(ins, mort, irm)
+{
+  total = 0
+  
+  for(k in seq(0,ins$n-1,1))
+  {
+    for(j in seq(0,ins$n-1,1))
+    {
+      if(k==j)
+      {
+        total = total + pv.cov(k+1,j+1,irm) * kdeferredqx(k,mort)
+      }
+    }
+  }
+  
+  total
+}
+
+#' @rdname termsingle
+#' @export
+z.invrisk.isingle.termsingle <- function(ins, mort, irm)
+{
+  second = 0
+  first = 0
+  
+  for(k in seq(0,ins$n-1,1))
+  {
+    second = second + pv.moment(k+1,1,irm)^2 * kdeferredqx(k, mort)
+    first = first + pv.moment(k+1,1,irm) * kdeferredqx(k, mort)
+  }
+  
+  second - first^2
 }
 
 #### Single endowment insurance product ####
@@ -563,6 +599,20 @@ z.ev.twoone.isingle.endowsingle <- function(ins, mort, irm)
   total + pv.moment(ins$n, 3, irm) * kpx(ins$n, mort)^2 * ins$e^3
 }
 
+#' @rdname endowsingle
+#' @export
+z.insrisk.isingle.endowsingle <- function(ins, mort, irm)
+{
+  stop("z.insrisk is not implemented for endowsingle class")
+}
+
+#' @rdname endowsingle
+#' @export
+z.invrisk.isingle.endowsingle <- function(ins, mort, irm)
+{
+  stop("z.invrisk is not implemented for endowsingle class")
+}
+
 #### Insurance Portfolio (identical policies) ####
 
 #' @name iport
@@ -588,14 +638,14 @@ z.moment.iport <- function(moment, ins, mort, irm)
 
 #' @rdname iport
 #' @export
-z.insrisk <- function(ins, mort, irm)
+z.insrisk.iport <- function(ins, mort, irm)
 {
   stop("z.insrisk not implemented for iport classes")
 }
 
 #' @rdname iport
 #' @export
-z.invrisk <- function(ins, mort, irm)
+z.invrisk.iport <- function(ins, mort, irm)
 {
   stop("z.invrisk not implemented for iport classes")
 }
@@ -913,7 +963,7 @@ cashflow.cov <- function(s, r, ins, mort, irm)
 
 #' @rdname igroup
 #' @export
-z.insrisk <- function(ins, mort, irm)
+z.insrisk.igroup <- function(ins, mort, irm)
 {
   total = 0
   
@@ -935,7 +985,7 @@ z.insrisk <- function(ins, mort, irm)
 
 #' @rdname igroup
 #' @export
-z.invrisk <- function(ins, mort, irm)
+z.invrisk.igroup <- function(ins, mort, irm)
 {
   total = 0
   

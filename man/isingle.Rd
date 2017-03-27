@@ -2,16 +2,16 @@
 % Please edit documentation in R/insuranceModels.R
 \name{isingle}
 \alias{isingle}
-\alias{z.insrisk}
-\alias{z.invrisk}
+\alias{z.insrisk.isingle}
+\alias{z.invrisk.isingle}
 \alias{z.moment.isingle}
 \title{Single insurance product}
 \usage{
 z.moment.isingle(moment, ins, mort, irm)
 
-z.insrisk(ins, mort, irm)
+z.insrisk.isingle(ins, mort, irm)
 
-z.invrisk(ins, mort, irm)
+z.invrisk.isingle(ins, mort, irm)
 }
 \description{
 An endowment insurance pays a benefit of \code{d} if the policyholder
