@@ -2,10 +2,19 @@
 % Please edit documentation in R/insuranceModels.R
 \name{endowsingle}
 \alias{endowsingle}
+\alias{z.ev.three.isingle.endowsingle}
+\alias{z.ev.two.isingle.endowsingle}
+\alias{z.ev.twoone.isingle.endowsingle}
 \alias{z.moment.isingle.endowsingle}
 \title{Single endowment insurance product}
 \usage{
 \method{z.moment}{isingle.endowsingle}(moment, ins, mort, irm)
+
+z.ev.two.isingle.endowsingle(ins, mort, irm)
+
+z.ev.three.isingle.endowsingle(ins, mort, irm)
+
+z.ev.twoone.isingle.endowsingle(ins, mort, irm)
 }
 \description{
 An endowment insurance pays a benefit of \code{d} if the policyholder

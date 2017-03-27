@@ -1,3 +1,18 @@
+#### Population Tables ####
+
+#' @name CdnPop2016
+#' @title Canadian Population Table for 2016
+#' @description Canadian Population for 2016 from Statistics Canada census.
+#' @docType data
+#' @usage CdnPop2016
+#' @format female and male population counts and proportions for 
+#' different age groups.
+#' @source Appendix B in Parker.
+#' @references
+#'   Parker, Gary. An application of stochastic interest rate models in
+#'   life assurance. Diss. Heriot-Watt University, 1992.
+NULL
+
 #### Mortality Tables ####
 
 #' @name MaleMort82
@@ -342,6 +357,8 @@ z.moment.isingle.termsingle <- function(moment, ins, mort, irm)
 }
 
 # helper function
+#' @rdname termsingle
+#' @export
 z.ev.two.isingle.termsingle <- function(ins, mort, irm)
 {
   total = 0
@@ -363,6 +380,8 @@ z.ev.two.isingle.termsingle <- function(ins, mort, irm)
 }
 
 # helper function
+#' @rdname termsingle
+#' @export
 z.ev.three.isingle.termsingle <- function(ins, mort, irm)
 {
   total = 0
@@ -389,6 +408,8 @@ z.ev.three.isingle.termsingle <- function(ins, mort, irm)
 }
 
 # helper  function
+#' @rdname termsingle
+#' @export
 z.ev.twoone.isingle.termsingle <- function(ins, mort, irm)
 {
   total = 0
@@ -439,6 +460,8 @@ z.moment.isingle.endowsingle <- function(moment, ins, mort, irm)
 }
 
 # helper function
+#' @rdname endowsingle
+#' @export
 z.ev.two.isingle.endowsingle <- function(ins, mort, irm) 
 {
   total = 0
@@ -465,6 +488,8 @@ z.ev.two.isingle.endowsingle <- function(ins, mort, irm)
 }
 
 # helper function
+#' @rdname endowsingle
+#' @export
 z.ev.three.isingle.endowsingle <- function(ins, mort, irm)
 {
   total = 0
@@ -505,6 +530,8 @@ z.ev.three.isingle.endowsingle <- function(ins, mort, irm)
 }
 
 # helper function
+#' @rdname endowsingle
+#' @export
 z.ev.twoone.isingle.endowsingle <- function(ins, mort, irm)
 {
   total = 0

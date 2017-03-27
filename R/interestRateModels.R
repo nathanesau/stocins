@@ -147,6 +147,46 @@ iratemodel.convert <- function(from, to, irm, Delta = 1)
       stop(paste("conversion from", from, "to", to, "not implemented"))  
     }
   }
+  else if(from == "ar1")
+  {
+    if(to == "ou")
+    {
+      phi1 = irm$phi1
+      sigma2a = irm$sigma^2
+      
+      alpha = -log(phi1) / Delta
+      sigma2 = 2*alpha*sigma2a / (1 - phi1^2)
+      
+      oumodel = iratemodel(params = list(alpha = alpha, sigma = sqrt(sigma2)),
+                        "ou")
+    
+    return(oumodel)
+    }
+    else
+    {
+      stop(paste("conversion from", from, "to", to, "not implemented"))  
+    }
+  }
+  else if(from == "ou")
+  {
+    if(to == "ar1")
+    {
+      alpha = irm$alpha
+      sigma2 = irm$sigma^2
+      
+      phi1 = exp(-alpha*Delta)
+      sigma2a = sigma2 / (2*alpha) * (1 - phi1^2)
+      
+      armodel = iratemodel(params = list(coef = phi1, sigma = sqrt(sigma2a)),
+                           "ar1")
+      
+      return(armodel)
+    }
+    else
+    {
+      stop(paste("conversion from", from, "to", to, "not implemented"))  
+    }
+  }
   else
   {
     stop(paste("conversion from", from, "to", to, "not implemented"))
