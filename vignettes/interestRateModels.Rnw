@@ -66,4 +66,34 @@ plot(function(t) delta.ev(t, oumodel) +
      add = TRUE, lty = 2)
 @
 
+\subsection{Second Order Stochastic Differential Equation}
+
+<<echo=TRUE>>=
+secondmodel = iratemodel(params = list(alpha1 = -0.50, alpha2 = -0.04, 
+  delta0prime = 0.05, delta0 = 0.10, delta = 0.06, sigma = 0.01), "second")
+@
+
+A plot is shown below.
+
+<<echo=TRUE, fig=TRUE>>=
+plot(function(t) delta.ev(t, secondmodel), 0, 50, col = 'black', 
+     ylim = c(-0.05, 0.25), xlab = "time", ylab = "force of interest")
+plot(function(t) delta.ev(t, secondmodel) - 
+       1.645 * sqrt(delta.var(t, secondmodel)), 0, 50, 
+     add = TRUE, lty = 2)
+plot(function(t) delta.ev(t, secondmodel) + 
+       1.645 * sqrt(delta.var(t, secondmodel)), 0, 50, 
+     add = TRUE, lty = 2)
+@
+
+\subsection{AR(1) process}
+
+<<echo=TRUE>>=
+ar1model = iratemodel(params = list(delta = 0.05, delta0 = 0.08,
+  phi1 = 0.90, sigma = 0.01), "ar1")
+
+ann.ev(5, ar1model)
+sqrt(ann.var(5, ar1model))
+@
+
 \end{document}
