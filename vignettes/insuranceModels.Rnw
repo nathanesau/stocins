@@ -89,37 +89,38 @@ z.sk(endowport1e09, mort, oumodel)
 \section{Group of Insurance Portfolios}
 
 <<echo=TRUE>>=
-single1 = insurance(params = list(n=10, d=50,  e=50), "isingle", "endow")
-single2 = insurance(params = list(n=5,  d=100, e=50), "isingle", "endow")
-single3 = insurance(params = list(n=10, d=150, e=0),  "isingle", "endow")
-single4 = insurance(params = list(n=10, d=50,  e=0),  "isingle", "endow")
-single5 = insurance(params = list(n=10, d=100, e=100),"isingle", "endow")
-single6 = insurance(params = list(n=5,  d=75,  e=0),  "isingle", "endow")
-single7 = insurance(params = list(n=5,  d=25,  e=0),  "isingle", "endow")
-single8 = insurance(params = list(n=10, d=50,  e=50), "isingle", "endow")
+single1 = insurance(list(n=10, d=50,  e=50), "isingle", "endow")
+single2 = insurance(list(n=5,  d=100, e=50), "isingle", "endow")
+single3 = insurance(list(n=10, d=150, e=0),  "isingle", "endow")
+single4 = insurance(list(n=10, d=50,  e=0),  "isingle", "endow")
+single5 = insurance(list(n=10, d=100, e=100),"isingle", "endow")
+single6 = insurance(list(n=5,  d=75,  e=0),  "isingle", "endow")
+single7 = insurance(list(n=5,  d=25,  e=0),  "isingle", "endow")
+single8 = insurance(list(n=10, d=50,  e=50), "isingle", "endow")
 
-mort1 = mortassumptions(params = list(x = 30, table = "MaleMort82"))
-mort2 = mortassumptions(params = list(x = 35, table = "MaleMort82"))
-mort3 = mortassumptions(params = list(x = 50, table = "MaleMort82"))
-mort4 = mortassumptions(params = list(x = 30, table = "FemaleMort82"))
-mort5 = mortassumptions(params = list(x = 40, table = "FemaleMort82"))
-mort6 = mortassumptions(params = list(x = 40, table = "MaleMort82Reduced"))
-mort7 = mortassumptions(params = list(x = 45, table = "FemaleMort82Reduced"))
-mort8 = mortassumptions(params = list(x = 55, table = "FemaleMort82"))
+mort1 = mortassumptions(list(x = 30, table = "MaleMort82"))
+mort2 = mortassumptions(list(x = 35, table = "MaleMort82"))
+mort3 = mortassumptions(list(x = 50, table = "MaleMort82"))
+mort4 = mortassumptions(list(x = 30, table = "FemaleMort82"))
+mort5 = mortassumptions(list(x = 40, table = "FemaleMort82"))
+mort6 = mortassumptions(list(x = 40, table = "MaleMort82Reduced"))
+mort7 = mortassumptions(list(x = 45, table = "FemaleMort82Reduced"))
+mort8 = mortassumptions(list(x = 55, table = "FemaleMort82"))
 
-port1 = insurance(params = list(single = single1, c = 1000), "iport", "endow")
-port2 = insurance(params = list(single = single2, c = 2500), "iport", "endow")
-port3 = insurance(params = list(single = single3, c = 2000), "iport", "endow")
-port4 = insurance(params = list(single = single4, c = 1500), "iport", "endow")
-port5 = insurance(params = list(single = single5, c = 500), "iport", "endow")
-port6 = insurance(params = list(single = single6, c = 2500), "iport", "endow")
-port7 = insurance(params = list(single = single7, c = 3000), "iport", "endow")
-port8 = insurance(params = list(single = single8, c = 500), "iport", "endow")
+port1 = insurance(list(single = single1, c = 1000), "iport", "endow")
+port2 = insurance(list(single = single2, c = 2500), "iport", "endow")
+port3 = insurance(list(single = single3, c = 2000), "iport", "endow")
+port4 = insurance(list(single = single4, c = 1500), "iport", "endow")
+port5 = insurance(list(single = single5, c = 500), "iport", "endow")
+port6 = insurance(list(single = single6, c = 2500), "iport", "endow")
+port7 = insurance(list(single = single7, c = 3000), "iport", "endow")
+port8 = insurance(list(single = single8, c = 500), "iport", "endow")
 
 insgroup = insurance(list(port1, port2, port3, port4, port5, 
                           port6, port7, port8), "igroup")
 
-mortgroup = list(mort1, mort2, mort3, mort4, mort5, mort6, mort7, mort8)
+mortgroup = list(mort1, mort2, mort3, mort4, mort5,
+                 mort6, mort7, mort8)
 
 z.moment(1, insgroup, mortgroup, oumodel) / insgroup$c
 z.moment(2, insgroup, mortgroup, oumodel) / insgroup$c^2

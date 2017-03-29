@@ -1,4 +1,6 @@
-\documentclass{article}
+\documentclass[12pt]{article}
+
+\usepackage[margin=1.0in]{geometry}
 
 \begin{document}
 \SweaveOpts{concordance=TRUE}

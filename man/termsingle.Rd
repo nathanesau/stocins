@@ -8,6 +8,7 @@
 \alias{z.insrisk.isingle.termsingle}
 \alias{z.invrisk.isingle.termsingle}
 \alias{z.moment.isingle.termsingle}
+\alias{z.pdf.isingle.termsingle}
 \title{Single term insurance product}
 \usage{
 \method{z.moment}{isingle.termsingle}(moment, ins, mort, irm)
@@ -21,6 +22,8 @@ z.ev.twoone.isingle.termsingle(ins, mort, irm)
 \method{z.insrisk}{isingle.termsingle}(ins, mort, irm)
 
 \method{z.invrisk}{isingle.termsingle}(ins, mort, irm)
+
+\method{z.pdf}{isingle.termsingle}(z, ins, mort, irm)
 }
 \description{
 An endowment insurance pays a benefit of \code{d} if the policyholder

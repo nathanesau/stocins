@@ -6,6 +6,7 @@
 \alias{z.insrisk}
 \alias{z.invrisk}
 \alias{z.moment}
+\alias{z.pdf}
 \alias{z.sd}
 \alias{z.sk}
 \title{Insurance product}
@@ -23,6 +24,8 @@ z.sk(ins, mort, irm)
 z.insrisk(ins, mort, irm)
 
 z.invrisk(ins, mort, irm)
+
+z.pdf(z, ins, mort, irm)
 }
 \description{
 An endowment insurance pays a benefit of \code{d} if the policyholder

@@ -289,6 +289,13 @@ z.invrisk <- function(ins, mort, irm)
   UseMethod("z.invrisk", ins)
 }
 
+#' @rdname insurance
+#' @export
+z.pdf <- function(z, ins, mort, irm)
+{
+  UseMethod("z.pdf", ins)
+}
+
 #### Single Insurance Product ####
 
 #' @name isingle
@@ -324,6 +331,13 @@ z.insrisk.isingle <- function(ins, mort, irm)
 z.invrisk.isingle <- function(ins, mort, irm)
 {
   UseMethod("z.invrisk.isingle", ins)
+}
+
+#' @rdname isingle
+#' @export
+z.pdf.isingle <- function(z, ins, mort, irm)
+{
+  UseMethod("z.pdf.isingle", ins)
 }
 
 #### Single Term Insurance Product ####
@@ -463,6 +477,39 @@ z.invrisk.isingle.termsingle <- function(ins, mort, irm)
   }
   
   second - first^2
+}
+
+#' @rdname termsingle
+#' @export
+z.pdf.isingle.termsingle <- function(z, ins, mort, irm)
+{
+  f <- function(z)
+  {
+    if(z < 0)
+    {
+      return(0)
+    }
+    else if(z == 0)
+    {
+      return(kpx(k = ins$n, mort))
+    }
+    else
+    {
+      if(ins$n > 0)
+      {
+        k = seq(0, ins$n - 1, 1)
+        kqx = kdeferredqx(k, mort)
+          
+        sum(kqx * dlnorm(z, -y.ev(k + 1, irm), sqrt(y.var(k + 1, irm))))
+      }
+      else
+      {
+        return (0)
+      }
+    }
+  }
+    
+  sapply(z, f)
 }
 
 #### Single endowment insurance product ####
@@ -613,6 +660,36 @@ z.invrisk.isingle.endowsingle <- function(ins, mort, irm)
   stop("z.invrisk is not implemented for endowsingle class")
 }
 
+#' @rdname isingle
+#' @export
+z.pdf.isingle.endowsingle <- function(z, ins, mort, irm)
+{
+  f <- function(z)
+  {
+    if(z <= 0)
+    {
+      return(0)
+    }
+    else
+    {
+      if(ins$n > 0)
+      {
+        k = seq(0, ins$n - 1, 1)
+        kqx = kdeferredqx(k, mort)
+        
+        sum(kqx * dlnorm(z, -y.ev(k + 1, irm), sqrt(y.var(k + 1, irm)))) + 
+        kpx(ins$n, mort) * dlnorm(z, -y.ev(ins$n, irm), sqrt(y.var(ins$n, irm)))
+      }
+      else
+      {
+        ifelse(n == 0 && z == 1, 1, 0)
+      }
+    }
+  }
+  
+  sapply(z, f)
+}
+
 #### Insurance Portfolio (identical policies) ####
 
 #' @name iport
@@ -648,6 +725,12 @@ z.insrisk.iport <- function(ins, mort, irm)
 z.invrisk.iport <- function(ins, mort, irm)
 {
   stop("z.invrisk not implemented for iport classes")
+}
+
+#' @rdname iport
+z.pdf.iport <- function(z, ins, mort, irm)
+{
+  stop("z.pdf not implemented for iport classes")
 }
 
 #### Term Insurance Portfolio ####

@@ -5,6 +5,8 @@
 \alias{z.insrisk.isingle}
 \alias{z.invrisk.isingle}
 \alias{z.moment.isingle}
+\alias{z.pdf.isingle}
+\alias{z.pdf.isingle.endowsingle}
 \title{Single insurance product}
 \usage{
 z.moment.isingle(moment, ins, mort, irm)
@@ -12,6 +14,10 @@ z.moment.isingle(moment, ins, mort, irm)
 z.insrisk.isingle(ins, mort, irm)
 
 z.invrisk.isingle(ins, mort, irm)
+
+z.pdf.isingle(z, ins, mort, irm)
+
+\method{z.pdf}{isingle.endowsingle}(z, ins, mort, irm)
 }
 \description{
 An endowment insurance pays a benefit of \code{d} if the policyholder

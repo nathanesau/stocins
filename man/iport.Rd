@@ -5,6 +5,7 @@
 \alias{z.insrisk.iport}
 \alias{z.invrisk.iport}
 \alias{z.moment.iport}
+\alias{z.pdf.iport}
 \title{Insurance portfolio (identical policies)}
 \usage{
 z.moment.iport(moment, ins, mort, irm)
@@ -12,6 +13,8 @@ z.moment.iport(moment, ins, mort, irm)
 \method{z.insrisk}{iport}(ins, mort, irm)
 
 \method{z.invrisk}{iport}(ins, mort, irm)
+
+\method{z.pdf}{iport}(z, ins, mort, irm)
 }
 \description{
 An endowment insurance pays a benefit of \code{d} if the policyholder
