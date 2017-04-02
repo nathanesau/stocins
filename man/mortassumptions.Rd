@@ -19,12 +19,21 @@ kdeferredqx(k, mort)
 \method{kdeferredqx}{mortassumptions}(k, mort)
 }
 \description{
-An endowment insurance pays a benefit of \code{d} if the policyholder
-dies within the term of the contract and a benefit of \code{e} if the policyholder
-survives the term of the contract.
+A class which describes the mortality for a policyholder.
+The \code{params} argument should be a list with \code{x} for the age and
+\code{table} for the table. See the examples below.
 }
-\references{
-Parker, Gary. An application of stochastic interest rate models in
-  life assurance. Diss. Heriot-Watt University, 1992.
+\details{
+The \code{kpx} function can be used to calculate survival
+probabilities and the \code{kdeferredqx} function can be used to calculate
+probability of death in a given year. See the examples below.
+}
+\examples{
+malemort = mortassumptions(list(x = 50, table = "MaleMort91"))
+femalemort = mortassumptions(list(x = 30, table = "FemaleMort91"))
+
+# calculate probabilities
+kpx(5, malemort)
+kdeferredqx(2, femalemort)
 }
 

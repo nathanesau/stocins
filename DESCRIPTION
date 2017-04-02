@@ -1,15 +1,13 @@
 Package: stocins
 Type: Package
-Title: An Application of Stochastic Interest Rate Models
-  in Life Assurance
+Title: Stochastic Interest Rate Models for Life Insurance
 Version: 0.1.0
 Author: Nathan Esau
 Maintainer: Nathan <nesau@sfu.ca>
-Description: Implements functions described in:
-  Parker, Gary. An application of stochastic interest rate models
-  in life assurance. Diss. Heriot-Watt University, 1992.
+Description: This package can be used to analyze the risk of an insurance
+portfolio using stochastic interest rate models. The focus is on calculating
+the first three moments of the present value of benefit random variable
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
-Imports: lattice
 RoxygenNote: 5.0.1

@@ -7,13 +7,13 @@
 \format{a \code{x} column for the age from 0 to 102 inclusive
 and a \code{qx} column for the mortality rate.}
 \source{
-Appendix B in Parker.
+Appendix B in Parker (1992).
 }
 \usage{
 MaleMort82
 }
 \description{
-This data set contains the mortality rates used in Parker.
+This data set contains the mortality rates used in Parker (1992).
 }
 \references{
 Parker, Gary. An application of stochastic interest rate models in

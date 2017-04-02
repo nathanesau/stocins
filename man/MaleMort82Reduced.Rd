@@ -6,17 +6,14 @@
 \title{CA Male Mortality rates from 1980-1982 * 0.8}
 \format{a \code{x} column for the age from 0 to 102 inclusive
 and a \code{qx} column for the mortality rate.}
-\source{
-Appendix B in Parker.
-}
 \usage{
 MaleMort82Reduced
 }
 \description{
-This data set contains the mortality rates used in Parker.
+This data set contains the mortality rates used in Parker (1992).
 }
 \references{
-Parker, Gary. An application of stochastic interest rate models in
-  life assurance. Diss. Heriot-Watt University, 1992.
+Parker, G. (1997). Stochastic analysis of the interaction between
+investment and insurance risks. North American actuarial journal, 1(2), 55–71.
 }
 

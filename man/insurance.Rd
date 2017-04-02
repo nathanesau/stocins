@@ -28,12 +28,92 @@ z.invrisk(ins, mort, irm)
 z.pdf(z, ins, mort, irm)
 }
 \description{
-An endowment insurance pays a benefit of \code{d} if the policyholder
-dies within the term of the contract and a benefit of \code{e} if the policyholder
-survives the term of the contract.
+A class used to describe the insurance product we are modeling.
+Three types of insurance policies can be modeled:
+
+1. Insurance policies issued to a single life, i.e. the \code{isingle} subclasses.
+For these policies, the \code{params} argument should be a list with \code{n} for the
+term of the contract, \code{d} for the death benefit and \code{e} for the 
+survival benefit. If \code{e} is not specified it is assumed to be 0. For a 
+policy issued to a single life, the class argument should be \code{isingle}
+and the subclass argument should be either \code{term} for a term insurance
+or \code{endow} for an endowment insurance. See the examples below.
+
+2. Identical policies issued to many lives, i.e. the code \code{iport} subclasses.
+
+3. A group of insurance portfolios, i.e. the code \code{igroup} subclass.
+}
+\details{
+For each class, several functions are available.
+
+The \code{z.moment} function can be used to calculate the 
+raw moments of the present value of benefit random variable. 
+For the \code{isingle} classes all the moments are implemented, 
+for the \code{iport} classes the first three moments are implemented 
+and for the \code{igroup} class the first two moments are implemented.
+The formulas from Parker (1992) were used to implement these moments.
+
+The \code{z.ev} function can be used to calculate the first moment, the 
+\code{z.sd} function can be used to calculate the standard deviation and
+the \code{z.sk} function can be used to calculate the skewness of the
+present value of benefit random variable.
+
+The \code{z.insrisk} function can be used to calculate the insurance risk
+arising from uncertain mortality and \code{z.invrisk} can be used to calculate
+the investment risk arising from uncertain investment returns. The formulas
+from Parker (1997) were used to implement these functions.
+
+The \code{z.pdf} function can be used to calculate the density function
+of the present value of benefit random variable for the \code{isingle} classes.
+This function has not been implemented for the \code{iport} and \code{igroup}
+classes. For details on how this could be done, refer to Parker (1992) and
+Parker (1997).
+
+Refer to the examples below for how to use these functions.
+}
+\examples{
+oumodel = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+alpha = 0.1, sigma = 0.01), "ou")
+mort = mortassumptions(list(x = 40, table = "MaleMort91"))
+mort2 = mortassumptions(list(x = 50, table = "FemaleMort91"))
+
+## isingle classes
+termins = insurance(list(n = 10, d = 1), "isingle", "term")
+endowins = insurance(list(n = 10, e = 1, d = 1), "isingle", "endow")
+
+z.ev(termins, mort, oumodel) # first moment
+z.moment(2, termins, mort, oumodel) # second moment
+z.moment(3, termins, mort, oumodel) # third moment
+z.sd(endowins, mort, oumodel) # standard deviation
+z.sk(endowins, mort, oumodel) # skewness
+
+plot(function(z) z.pdf(z, termins, mort, oumodel), 0.01, 1.0,
+ylim = c(0, 0.15), lty = 1, xlab = "z", ylab = "f(z)")
+
+legend('topleft', leg = c(paste0("P(Z=0) = ", round(kpx(1, mort), 5))),
+lty = 1)
+
+## iport classes
+termport = insurance(list(single = termins, c = 1000), "iport", "term")
+endowport = insurance(list(single = endowins, c = 1000), "iport", "endow")
+z.moment(1, termport, mort, oumodel) / termport$c # average cost
+z.sd(termport, mort, oumodel) / termport$c # average standard deviation
+
+## igroup class
+groupins = insurance(list(termport, endowport), 
+"igroup") # 1000 term contracts, 1000 endow contracts
+groupmort = list(mort, mort2) # term contracts are age 40, endow contracts are age 50
+z.moment(1, groupins, groupmort, oumodel) / groupins$c # average cost per policy
+z.insrisk(groupins, groupmort, oumodel) / termport$c^2 # insrisk per policy
+z.invrisk(groupins, groupmort, oumodel) / termport$c^2 # invrisk per policy
+z.sd(groupins, groupmort, oumodel) / termport$c # sd per policy
+
 }
 \references{
 Parker, Gary. An application of stochastic interest rate models in
   life assurance. Diss. Heriot-Watt University, 1992.
+  
+  Parker, G. (1997). Stochastic analysis of the interaction between
+  investment and insurance risks. North American actuarial journal, 1(2), 55–71.
 }
 

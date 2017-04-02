@@ -2,13 +2,33 @@
 
 \usepackage[margin=1.0in]{geometry}
 \usepackage{parskip}
+\usepackage{apacite}
+
+\bibliographystyle{apacite}
+
+\title{Reproducing results from Parker}
+\author{Nathan Esau}
+\date{\today}
 
 \begin{document}
 \SweaveOpts{concordance=TRUE}
 
-\section{Parker (1992) Thesis}
+\maketitle
 
-Some figures from Parker (1992) are reproduced here.
+The functions in \texttt{stocins} were tested against \cite{parker1992application} and \cite{parker1997stochastic}.
+
+This package implements the following:
+
+\begin{itemize}
+\item Functions for an Wiener process, Ornstein-Uhlenbeck process and Second order stochastic differential equation as shown in Chapter 2 and 3 of \cite{parker1992application}.
+\item Moments and density function for the present value of a term and endowment insurance on a single life as shown in Chapter 4 of \cite{parker1992application}.
+\item The first three moments for a portfolio of term and endowment contracts as shown in Chapter 5 of \cite{parker1992application}.
+\item The first two moments for a group of term and endowment contracts as shown in \cite{parker1997stochastic}.
+\end{itemize}
+
+Various classes implement this functionality:
+
+
 
 <<echo=TRUE, fig=TRUE, include=FALSE, label=figure41, eval=FALSE>>=
 library(stocins)
@@ -371,53 +391,6 @@ legend('topright', leg = c("c=1","c=10","c=100","c=1000","c=Inf"),
 \caption{Figure 5.1 from Parker (1992)}
 \end{figure}
 
-The skewness for a term policy is below.
-
-<<echo=TRUE, fig=TRUE, eval=FALSE, include=FALSE, label=figure52>>=
-oumodel = iratemodel(list(delta0 = 0.1, delta = 0.06, 
-                          alpha = 0.1, sigma = 0.01), "ou")
-
-mort = mortassumptions(list(x = 30, table = "MaleMort82"))
-
-n = seq(1,70,1)
-skew1 = numeric(length(n))
-skew10 = numeric(length(n))
-skew100 = numeric(length(n))
-skew1000 = numeric(length(n))
-skewInf = numeric(length(n))
-
-for(i in 41:70)
-{
-  cat("i: ", i, "\n")
-  
-  term = insurance(list(n=n[i], d=1), "isingle", "term")
-  port1 = insurance(list(single = term, c = 1), "iport", "term")
-  port10 = insurance(list(single = term, c = 10), "iport", "term")
-  port100 = insurance(list(single = term, c = 100), "iport", "term")
-  port1000 = insurance(list(single = term, c = 1000), "iport", "term")
-  portInf = insurance(list(single = term, c = 1e18), "iport", "term")
-  
-  skew1[i] = z.sk(port1,mort,oumodel)
-  skew10[i] = z.sk(port10,mort,oumodel)
-  skew100[i] = z.sk(port100,mort,oumodel)
-  skew1000[i] = z.sk(port1000,mort,oumodel)
-  skewInf[i] = z.sk(portInf,mort,oumodel)
-}
-
-pdf("C:/Users/nesau/Desktop/stocins/vignettes/parkerThesis-figure52.pdf")
-
-plot(x = n, y = skew1, type = 'l', ylab = "sk", xlab = "n", 
-     ylim = c(0, 30), xlim=c(0,46))
-lines(x = n, y = skew10, type = 'l', lty = 2,xlim=c(0,40))
-lines(x = n, y = skew100, type = 'l', lty = 3,xlim=c(0,40))
-lines(x = n, y = skew1000, type = 'l', lty = 4,xlim=c(0,40))
-lines(x = n, y = skewInf, type = 'l', lty = 5,xlim=c(0,40))
-
-legend('topright', leg = c("c=1","c=10","c=100","c=1000","c=Inf"),
-       lty = c(1,2,3,4,5), ncol = 5, cex = 0.9)
-dev.off()
-@
-
 The standard deviation for an endowment policy is below.
 
 <<echo=TRUE, fig=TRUE, eval=FALSE, include=FALSE, label=figure53>>=
@@ -468,5 +441,7 @@ legend('topright', leg = c("c=1","c=10","c=100","c=1000","c=Inf"),
 \vspace{-5mm}
 \caption{Figure 5.3 from Parker (1992)}
 \end{figure}
+
+\bibliography{sources}
 
 \end{document}

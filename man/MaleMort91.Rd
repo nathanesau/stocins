@@ -13,6 +13,6 @@ Statistics Canada
 MaleMort91
 }
 \description{
-This data set contains the mortality rates from Statistics Canada.
+This data set contains the 1991 mortality rates from Statistics Canada.
 }
 

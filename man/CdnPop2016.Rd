@@ -4,19 +4,15 @@
 \name{CdnPop2016}
 \alias{CdnPop2016}
 \title{Canadian Population Table for 2016}
-\format{female and male population counts and proportions for 
+\format{Male and Female population counts and proportions for 
 different age groups.}
 \source{
-Appendix B in Parker.
+Statistics Canada
 }
 \usage{
 CdnPop2016
 }
 \description{
 Canadian Population for 2016 from Statistics Canada census.
-}
-\references{
-Parker, Gary. An application of stochastic interest rate models in
-  life assurance. Diss. Heriot-Watt University, 1992.
 }
 

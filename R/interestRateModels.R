@@ -1,3 +1,14 @@
+#### Historical Returns ####
+
+#' @name returns91
+#' @title Investment Returns from 1991 to 2017
+#' @description Company returns observed on monthly basis from 1991 to 2017
+#' @docType data
+#' @usage returns91
+#' @format A column for month and column for return (annualized). Rates are
+#' continuously compounded.
+NULL
+
 #### Interest Rate Model ####
 
 #' @name iratemodel
