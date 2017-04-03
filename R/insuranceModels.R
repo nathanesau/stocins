@@ -164,25 +164,33 @@ kdeferredqx.mortassumptions <- function(k, mort)
 #' @description A class used to describe the insurance product we are modeling.
 #' Three types of insurance policies can be modeled:
 #' 
-#' 1. Insurance policies issued to a single life, i.e. the \code{isingle} subclasses.
+#' 1. Insurance policies issued to a single life, i.e. the \link{isingle} subclasses.
 #' For these policies, the \code{params} argument should be a list with \code{n} for the
 #' term of the contract, \code{d} for the death benefit and \code{e} for the 
 #' survival benefit. If \code{e} is not specified it is assumed to be 0. For a 
-#' policy issued to a single life, the class argument should be \code{isingle}
-#' and the subclass argument should be either \code{term} for a term insurance
-#' or \code{endow} for an endowment insurance. See the examples below.
+#' policy issued to a single life, the class argument should be "isingle"
+#' and the subclass argument should be either "term" for a term insurance
+#' or "endow" for an endowment insurance. See the examples below.
 #' 
-#' 2. Identical policies issued to many lives, i.e. the code \code{iport} subclasses.
+#' 2. Identical policies issued to many lives, i.e. the \link{iport} subclasses. For
+#' these policies, the \code{params} argument should be a list with \code{single}
+#' being an \code{isingle} object and \code{c} being a number specifying how
+#' many identical policies are in the portfolio. For a portfolio of policies, the
+#' class argument should be "iport" and the subclass argument should either be "term"
+#' for a term insurance or "endow" for an endowment insurance. See the examples below.
 #' 
-#' 3. A group of insurance portfolios, i.e. the code \code{igroup} subclass.
+#' 3. A group of insurance portfolios, i.e. the \link{igroup} subclass. For a group
+#' of policies, the \code{params} argument should be a list of \link{iport} objects
+#' and the class argument should be "igroup". The subclass argument is not needed.
+#' See the examples below.
 #' 
 #' @details For each class, several functions are available.
 #' 
 #' The \code{z.moment} function can be used to calculate the 
 #' raw moments of the present value of benefit random variable. 
-#' For the \code{isingle} classes all the moments are implemented, 
-#' for the \code{iport} classes the first three moments are implemented 
-#' and for the \code{igroup} class the first two moments are implemented.
+#' For the \link{isingle} classes all the moments are implemented, 
+#' for the \link{iport} classes the first three moments are implemented 
+#' and for the \link{igroup} class the first two moments are implemented.
 #' The formulas from Parker (1992) were used to implement these moments.
 #' 
 #' The \code{z.ev} function can be used to calculate the first moment, the 
@@ -196,8 +204,8 @@ kdeferredqx.mortassumptions <- function(k, mort)
 #' from Parker (1997) were used to implement these functions.
 #' 
 #' The \code{z.pdf} function can be used to calculate the density function
-#' of the present value of benefit random variable for the \code{isingle} classes.
-#' This function has not been implemented for the \code{iport} and \code{igroup}
+#' of the present value of benefit random variable for the \link{isingle} classes.
+#' This function has not been implemented for the \link{iport} and \link{igroup}
 #' classes. For details on how this could be done, refer to Parker (1992) and
 #' Parker (1997).
 #' 
@@ -380,9 +388,10 @@ z.pdf <- function(z, ins, mort, irm)
 #'
 #' @title Single insurance product
 #'
-#' @description An endowment insurance pays a benefit of \code{d} if the policyholder
-#' dies within the term of the contract and a benefit of \code{e} if the policyholder
-#' survives the term of the contract.
+#' @description A class used to describe insurance policies issued to a single life.
+#' The \link{termsingle} and \link{endowsingle} classes can be used to model
+#' term and endowment insurance contracts respectively. See the \link{insurance}
+#' class for details and examples.
 #' 
 #' @references
 #'   Parker, Gary. An application of stochastic interest rate models in
@@ -424,13 +433,39 @@ z.pdf.isingle <- function(z, ins, mort, irm)
 #'
 #' @title Single term insurance product
 #'
-#' @description An endowment insurance pays a benefit of \code{d} if the policyholder
-#' dies within the term of the contract and a benefit of \code{e} if the policyholder
+#' @description A term insurance pays a benefit of \code{d} if the policyholder
+#' dies within the term of the contract and 0 if the policyholder
 #' survives the term of the contract.
+#' 
+#' In addition to the functions described in the \link{insurance} class, other
+#' functions are available for the termsingle class.
+#' 
+#' In particular, 
+#' \code{z.ev.two.isingle.termsingle} can be used to calculate \eqn{E[Z_{1}Z_{2}]},
+#' \code{z.ev.three.isingle.termsingle} can be used to calculate
+#' \eqn{E[Z_{1}Z_{2}Z_{3}]} and \code{z.ev.twoone.isingle.termsingle} 
+#' can be used to calculate \eqn{E[Z_{1}^2Z_{2}]} in Parker (1992).
+#'
+#' @details The \code{z.insrisk} and \code{z.invrisk} functions for the
+#' \link{termsingle} class are implemented such that we are conditioning
+#' on \eqn{K} not \eqn{y}. See Parker (1997) for details.
+#'   
+#' @examples oumodel = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+#' alpha = 0.1, sigma = 0.01), "ou")
+#' mort = mortassumptions(list(x = 40, table = "MaleMort91"))
+#' term = insurance(list(n = 10, d = 1), "isingle", "term")
+#' 
+#' z.ev(term,mort,oumodel) # first moment
+#' z.ev.two.isingle.termsingle(term, mort, oumodel)
+#' z.ev.twoone.isingle.termsingle(term, mort, oumodel)
+#' z.ev.three.isingle.termsingle(term, mort, oumodel)
 #' 
 #' @references
 #'   Parker, Gary. An application of stochastic interest rate models in
 #'   life assurance. Diss. Heriot-Watt University, 1992.
+#'   
+#'   Parker, G. (1997). Stochastic analysis of the interaction between
+#'   investment and insurance risks. North American actuarial journal, 1(2), 55–71.
 NULL
 
 #' @rdname termsingle
@@ -447,7 +482,6 @@ z.moment.isingle.termsingle <- function(moment, ins, mort, irm)
   total
 }
 
-# helper function
 #' @rdname termsingle
 #' @export
 z.ev.two.isingle.termsingle <- function(ins, mort, irm)
@@ -470,7 +504,6 @@ z.ev.two.isingle.termsingle <- function(ins, mort, irm)
   total
 }
 
-# helper function
 #' @rdname termsingle
 #' @export
 z.ev.three.isingle.termsingle <- function(ins, mort, irm)
@@ -597,12 +630,38 @@ z.pdf.isingle.termsingle <- function(z, ins, mort, irm)
 #' @title Single endowment insurance product
 #'
 #' @description An endowment insurance pays a benefit of \code{d} if the policyholder
-#' dies within the term of the contract and a benefit of \code{e} if the policyholder
+#' dies within the term of the contract and \code{e} if the policyholder
 #' survives the term of the contract.
+#' 
+#' In addition to the functions described in the \link{insurance} class, other
+#' functions are available for the endowsingle class. 
+#' 
+#' In particular, 
+#' \code{z.ev.two.isingle.endowsingle} can be used to calculate \eqn{E[Z_{1}Z_{2}]},
+#' \code{z.ev.three.isingle.endowsingle} can be used to calculate
+#' \eqn{E[Z_{1}Z_{2}Z_{3}]} and \code{z.ev.twoone.isingle.endowsingle} 
+#' can be used to calculate \eqn{E[Z_{1}^2Z_{2}]} in Parker (1992).
+#' 
+#' @details The \code{z.insrisk} and \code{z.invrisk} functions for the
+#' \code{endowsingle} class are implemented such that we are conditioning
+#' on \eqn{K} not \eqn{y}. See Parker (1997) for details.
+#' 
+#' @examples oumodel = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+#' alpha = 0.1, sigma = 0.01), "ou")
+#' mort = mortassumptions(list(x = 40, table = "MaleMort91"))
+#' endow = insurance(list(n = 10, d = 1, e = 1), "isingle", "endow")
+#' 
+#' z.ev(endow,mort,oumodel) # first moment
+#' z.ev.two.isingle.endowsingle(endow, mort, oumodel)
+#' z.ev.twoone.isingle.endowsingle(endow, mort, oumodel)
+#' z.ev.three.isingle.endowsingle(endow, mort, oumodel)
 #' 
 #' @references
 #'   Parker, Gary. An application of stochastic interest rate models in
 #'   life assurance. Diss. Heriot-Watt University, 1992.
+#'   
+#'   Parker, G. (1997). Stochastic analysis of the interaction between
+#'   investment and insurance risks. North American actuarial journal, 1(2), 55–71.
 NULL
 
 #' @rdname endowsingle
@@ -619,7 +678,6 @@ z.moment.isingle.endowsingle <- function(moment, ins, mort, irm)
   total + kpx(ins$n, mort) * pv.moment(ins$n, moment, irm) * ins$e^moment
 }
 
-# helper function
 #' @rdname endowsingle
 #' @export
 z.ev.two.isingle.endowsingle <- function(ins, mort, irm) 
@@ -647,7 +705,6 @@ z.ev.two.isingle.endowsingle <- function(ins, mort, irm)
   total + pv.moment(ins$n, 2, irm) * kpx(ins$n, mort)^2 * ins$e^2
 }
 
-# helper function
 #' @rdname endowsingle
 #' @export
 z.ev.three.isingle.endowsingle <- function(ins, mort, irm)
@@ -689,7 +746,6 @@ z.ev.three.isingle.endowsingle <- function(ins, mort, irm)
   total + pv.moment(ins$n, 3, irm) * kpx(ins$n, mort)^3 * ins$e^3
 }
 
-# helper function
 #' @rdname endowsingle
 #' @export
 z.ev.twoone.isingle.endowsingle <- function(ins, mort, irm)
@@ -774,9 +830,10 @@ z.pdf.isingle.endowsingle <- function(z, ins, mort, irm)
 #'
 #' @title Insurance portfolio (identical policies)
 #'
-#' @description An endowment insurance pays a benefit of \code{d} if the policyholder
-#' dies within the term of the contract and a benefit of \code{e} if the policyholder
-#' survives the term of the contract.
+#' @description A portfolio of \code{c} identical term or endowment policies.
+#' The \link{termport} and \link{endowport} classes implement the functions for the
+#' present value of benefit random variable. See the \link{insurance} class
+#' for details and examples on how to use this class.
 #' 
 #' @references
 #'   Parker, Gary. An application of stochastic interest rate models in
@@ -815,11 +872,10 @@ z.pdf.iport <- function(z, ins, mort, irm)
 #' @name termport
 #' @rdname termport
 #'
-#' @title Term insurance portfolio
+#' @title Term insurance portfolio (identical policies)
 #'
-#' @description An endowment insurance pays a benefit of \code{d} if the policyholder
-#' dies within the term of the contract and a benefit of \code{e} if the policyholder
-#' survives the term of the contract.
+#' @description A portfolio of \code{c} identical term policies. See the 
+#' \link{insurance} class for details and examples on how to use this class.
 #' 
 #' @references
 #'   Parker, Gary. An application of stochastic interest rate models in
@@ -860,11 +916,10 @@ z.moment.iport.termport <- function(moment, ins, mort, irm)
 #' @name endowport
 #' @rdname endowport
 #'
-#' @title Endowment insurance portfolio
+#' @title Endowment insurance portfolio (identical policies)
 #'
-#' @description An endowment insurance pays a benefit of \code{d} if the policyholder
-#' dies within the term of the contract and a benefit of \code{e} if the policyholder
-#' survives the term of the contract.
+#' @description A portfolio of \code{c} identical endowment policies. See the 
+#' \link{insurance} class for details and examples on how to use this class.
 #' 
 #' @references
 #'   Parker, Gary. An application of stochastic interest rate models in
@@ -907,16 +962,49 @@ z.moment.iport.endowport <- function(moment, ins, mort, irm)
 #'
 #' @title Group of Insurance Portfolios
 #'
-#' @description An endowment insurance pays a benefit of \code{d} if the policyholder
-#' dies within the term of the contract and a benefit of \code{e} if the policyholder
-#' survives the term of the contract.
+#' @description A class for calculating the moments, insurance risk and
+#' and investment risk for a group of endowment and term insurance portfolios
+#' using the formulas described in Parker (1997).
+#' 
+#' In addition to the functions described in the \link{insurance} class some
+#' other functions are available for the \code{igroup} class.
+#' 
+#' In particular,
+#' \code{z.ev.two.igroup} calculates \eqn{E[Z_{1,i}, Z_{i,r}]} for
+#' \code{i} = \code{ind1} and \code{r} = \code{ind2}, \code{cashflow.ev}
+#' calculates the expected cashflow at time \code{r} and \code{cashflow.cov}
+#' calculates the covariance between the cashflows at time \code{r} and time
+#' \code{s} as describd in Parker (1997).
+#' 
+#' For details and examples on how to use the \code{igroup} class
+#' see the \link{insurance} class.
+#' 
+#' @examples oumodel = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+#' alpha = 0.1, sigma = 0.01), "ou")
+#' mort = mortassumptions(list(x = 40, table = "MaleMort91"))
+#' mort2 = mortassumptions(list(x = 50, table = "FemaleMort91"))
+#' 
+#' termins = insurance(list(n = 10, d = 1), "isingle", "term")
+#' endowins = insurance(list(n = 10, e = 1, d = 1), "isingle", "endow")
+#' 
+#' termport = insurance(list(single = termins, c = 1000), "iport", "term")
+#' endowport = insurance(list(single = endowins, c = 1000), "iport", "endow")
+#' 
+#' groupins = insurance(list(termport, endowport), 
+#' "igroup") # 1000 term contracts, 1000 endow contracts
+#' groupmort = list(mort, mort2) # term contracts are age 40, endow contracts are age 50
+#' z.moment(1, groupins, groupmort, oumodel) / groupins$c # average cost per policy
+#' z.ev.two.igroup(1, 2, groupins, groupmort, oumodel)
+#' cashflow.ev(5, groupins, groupmort, oumodel)
+#' cashflow.cov(3, 5, groupins, groupmort, oumodel)
 #' 
 #' @references
-#'   Parker, Gary. An application of stochastic interest rate models in
-#'   life assurance. Diss. Heriot-Watt University, 1992.
+#'   Parker, G. (1997). Stochastic analysis of the interaction between
+#'   investment and insurance risks. North American actuarial journal, 1(2), 55–71.
 NULL
 
-# helper function
+#' @rdname igroup
+#' @export
 z.ev.two.igroup <- function(ind1, ind2, ins, mort, irm)
 {
   if(length(ins) != length(mort) + 2)
@@ -1019,7 +1107,8 @@ z.moment.igroup <- function(moment, ins, mort, irm)
   epv
 }
 
-# helper function
+#' @rdname igroup
+#' @export
 cashflow.ev <- function(r, ins, mort, irm)
 {
   if(length(ins) != length(mort) + 2)
@@ -1056,7 +1145,8 @@ cashflow.ev <- function(r, ins, mort, irm)
   epv
 }
 
-# helper function
+#' @rdname igroup
+#' @export
 cashflow.cov <- function(s, r, ins, mort, irm)
 {
   if(length(ins) != length(mort) + 2)

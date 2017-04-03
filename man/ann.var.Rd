@@ -15,6 +15,7 @@ ann.var(n, irm)
 Variance of annuity
 }
 \description{
-Calculates the variance of an n-period annuity
+Calculates the variance of an n-period annuity. 
+See the \link{iratemodel} class for details and examples.
 }
 

@@ -17,9 +17,10 @@ z.moment.iport(moment, ins, mort, irm)
 \method{z.pdf}{iport}(z, ins, mort, irm)
 }
 \description{
-An endowment insurance pays a benefit of \code{d} if the policyholder
-dies within the term of the contract and a benefit of \code{e} if the policyholder
-survives the term of the contract.
+A portfolio of \code{c} identical term or endowment policies.
+The \link{termport} and \link{endowport} classes implement the functions for the
+present value of benefit random variable. See the \link{insurance} class
+for details and examples on how to use this class.
 }
 \references{
 Parker, Gary. An application of stochastic interest rate models in

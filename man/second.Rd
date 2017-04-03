@@ -7,7 +7,7 @@
 \alias{second}
 \alias{y.ev.second}
 \alias{y.var.second}
-\title{Second order stochastic differential equation}
+\title{Second Order Stochastic Differential Equation}
 \usage{
 \method{delta.ev}{second}(t, irm)
 
@@ -19,32 +19,9 @@
 
 \method{y.var}{second}(t, irm)
 }
-\value{
-\code{sde.evalue} gives the expected value, and \code{sde.var}
-gives the variance
-}
 \description{
-Expected value and variance for a Second order stochastic
-differential equation with frction parameters \code{alpha1} and
-\code{alpha2}, derivative of the force of interest at time 0 equal to
-\code{delta0prime}, current force of interest equal to \code{delta0},
-ultimate force of interest equal to \code{delta}, and diffusion coefficient
-equal to \code{sigma}.
-}
-\details{
-If \code{alpha1}, \code{alpha2}, \code{delta0prime}, \code{delta0},
-\code{delta}, and \code{sigma} are not specified, they assume the default
-values of \code{-0.50}, \code{-0.04}, \code{0.05}, \code{0.1} and
-\code{0.06} respectively.
-
-The Second Order Stochastic Differential Equation is defined by
-
-\deqn{d(d/dt \delta_t) = \alpha_1 d(\delta_t - \delta) dt +
-      \alpha_2 (\delta_t - \delta) +
-      \sigma dW_t}
-
-where \eqn{W_t} is a standard Wiener process with parameter \eqn{\sigma = 1}
-and \eqn{\alpha_1}, \eqn{\alpha_2}, \eqn{\sigma} and \eqn{\delta} are constants.
+A class used to model the Second Order Stochastic Differential Equation
+for the force of interest. See the \link{iratemodel} class for details and examples.
 }
 \references{
 Parker, Gary. An application of stochastic interest rate models in

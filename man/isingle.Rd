@@ -20,9 +20,10 @@ z.pdf.isingle(z, ins, mort, irm)
 \method{z.pdf}{isingle.endowsingle}(z, ins, mort, irm)
 }
 \description{
-An endowment insurance pays a benefit of \code{d} if the policyholder
-dies within the term of the contract and a benefit of \code{e} if the policyholder
-survives the term of the contract.
+A class used to describe insurance policies issued to a single life.
+The \link{termsingle} and \link{endowsingle} classes can be used to model
+term and endowment insurance contracts respectively. See the \link{insurance}
+class for details and examples.
 }
 \references{
 Parker, Gary. An application of stochastic interest rate models in

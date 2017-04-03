@@ -31,26 +31,34 @@ z.pdf(z, ins, mort, irm)
 A class used to describe the insurance product we are modeling.
 Three types of insurance policies can be modeled:
 
-1. Insurance policies issued to a single life, i.e. the \code{isingle} subclasses.
+1. Insurance policies issued to a single life, i.e. the \link{isingle} subclasses.
 For these policies, the \code{params} argument should be a list with \code{n} for the
 term of the contract, \code{d} for the death benefit and \code{e} for the 
 survival benefit. If \code{e} is not specified it is assumed to be 0. For a 
-policy issued to a single life, the class argument should be \code{isingle}
-and the subclass argument should be either \code{term} for a term insurance
-or \code{endow} for an endowment insurance. See the examples below.
+policy issued to a single life, the class argument should be "isingle"
+and the subclass argument should be either "term" for a term insurance
+or "endow" for an endowment insurance. See the examples below.
 
-2. Identical policies issued to many lives, i.e. the code \code{iport} subclasses.
+2. Identical policies issued to many lives, i.e. the \link{iport} subclasses. For
+these policies, the \code{params} argument should be a list with \code{single}
+being an \code{isingle} object and \code{c} being a number specifying how
+many identical policies are in the portfolio. For a portfolio of policies, the
+class argument should be "iport" and the subclass argument should either be "term"
+for a term insurance or "endow" for an endowment insurance. See the examples below.
 
-3. A group of insurance portfolios, i.e. the code \code{igroup} subclass.
+3. A group of insurance portfolios, i.e. the \link{igroup} subclass. For a group
+of policies, the \code{params} argument should be a list of \link{iport} objects
+and the class argument should be "igroup". The subclass argument is not needed.
+See the examples below.
 }
 \details{
 For each class, several functions are available.
 
 The \code{z.moment} function can be used to calculate the 
 raw moments of the present value of benefit random variable. 
-For the \code{isingle} classes all the moments are implemented, 
-for the \code{iport} classes the first three moments are implemented 
-and for the \code{igroup} class the first two moments are implemented.
+For the \link{isingle} classes all the moments are implemented, 
+for the \link{iport} classes the first three moments are implemented 
+and for the \link{igroup} class the first two moments are implemented.
 The formulas from Parker (1992) were used to implement these moments.
 
 The \code{z.ev} function can be used to calculate the first moment, the 
@@ -64,8 +72,8 @@ the investment risk arising from uncertain investment returns. The formulas
 from Parker (1997) were used to implement these functions.
 
 The \code{z.pdf} function can be used to calculate the density function
-of the present value of benefit random variable for the \code{isingle} classes.
-This function has not been implemented for the \code{iport} and \code{igroup}
+of the present value of benefit random variable for the \link{isingle} classes.
+This function has not been implemented for the \link{iport} and \link{igroup}
 classes. For details on how this could be done, refer to Parker (1992) and
 Parker (1997).
 

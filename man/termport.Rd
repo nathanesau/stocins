@@ -3,14 +3,13 @@
 \name{termport}
 \alias{termport}
 \alias{z.moment.iport.termport}
-\title{Term insurance portfolio}
+\title{Term insurance portfolio (identical policies)}
 \usage{
 \method{z.moment}{iport.termport}(moment, ins, mort, irm)
 }
 \description{
-An endowment insurance pays a benefit of \code{d} if the policyholder
-dies within the term of the contract and a benefit of \code{e} if the policyholder
-survives the term of the contract.
+A portfolio of \code{c} identical term policies. See the 
+\link{insurance} class for details and examples on how to use this class.
 }
 \references{
 Parker, Gary. An application of stochastic interest rate models in

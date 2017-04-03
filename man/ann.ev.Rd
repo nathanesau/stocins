@@ -15,6 +15,7 @@ ann.ev(n, irm)
 Present value of annuity
 }
 \description{
-Calculates the expected value of an n-period annuity
+Calculates the expected value of an n-period annuity.
+See the \link{iratemodel} class for details and examples.
 }
 

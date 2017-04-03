@@ -2,11 +2,8 @@
 % Please edit documentation in R/interestRateModels.R
 \name{iratemodel}
 \alias{delta.cov}
-\alias{delta.cov.determ}
 \alias{delta.ev}
-\alias{delta.ev.determ}
 \alias{delta.var}
-\alias{delta.var.determ}
 \alias{iratemodel}
 \alias{iratemodel.convert}
 \alias{pv.cov}
@@ -14,11 +11,8 @@
 \alias{pv.moment}
 \alias{pv.var}
 \alias{y.cov}
-\alias{y.cov.determ}
 \alias{y.ev}
-\alias{y.ev.determ}
 \alias{y.var}
-\alias{y.var.determ}
 \title{Interest Rate Model}
 \usage{
 iratemodel(params, class)
@@ -44,43 +38,133 @@ pv.ev(t, irm)
 pv.var(t, irm)
 
 pv.cov(s, t, irm)
-
-\method{delta.ev}{determ}(t, irm)
-
-\method{delta.cov}{determ}(s, t, irm)
-
-\method{delta.var}{determ}(t, irm)
-
-\method{y.ev}{determ}(t, irm)
-
-\method{y.var}{determ}(t, irm)
-
-\method{y.cov}{determ}(s, t, irm)
-}
-\arguments{
-\item{params}{A list with the parameter values to use}
-
-\item{class}{Either "ou" or "gbm"}
 }
 \description{
-The following \code{iratemodel} classes are available:
+A class used to describe the interest rate we are modeling. Six
+types of interest rate models can be used to model the force of interest
+\eqn{\delta_{s}} (see Parker (1992)):
 
-- \code{ou}: Ornstein-Uhlenbeck process
+1. Deterministic interest rate, i.e. the \link{determ} class. For the
+determinstic interest rate, the \code{params} argument should be a
+list with \code{delta} for the interest rate. The class argument should be
+"determ". See the examples below.
 
-- \code{gbm}: Geometric Brownian motion
+2. Wiener process, i.e. the \link{wiener} class. For the wiener process, the
+\code{params} argument should be a list with \code{delta} for the long term
+mean and \code{sigma} for the local volatility. The class argument should
+be "wiener". See the examples below.
 
-Each class can be used to model the force of interest, \eqn{\delta_{s}}.
+3. Ornstein-Uhlenbeck process, i.e. the \link{ou} class. For the Ornstein-Uhlenbeck
+process, the \code{params} should be a list with \code{delta} for the long 
+term mean, \code{alpha} for the friction parameter, \code{sigma} for the 
+local volatility and \code{delta0} for the initial value of the process.
+The class argument should be "ou". See the examples below.
+
+4. Second Order Stochastic Differential Equation, i.e. the \link{second} class.
+For the second order process, the \code{params} should be a list with \code{delta}
+for the long term mean, \code{alpha1} for the first friction parameter,
+\code{alpha2} for the second friction parameter, \code{sigma} for the local volatility,
+\code{delta0prime} for the initial derivative of the process and
+and \code{delta0} for the initial value of the process. Note that Parker uses
+the notation of \code{alpha0} instead of \code{alpha2} but 
+note that we are referring to the same parameter. The class argument should be
+"second". See the examples below.
+
+5. AR(1) process, i.e. the \link{ar1} class. For the AR(1) process, the \code{params}
+should be a list with \code{delta} for the long term mean, \code{delta0} for
+the initial value of the process, \code{phi1} for the AR(1) coefficient
+and \code{sigma} for the local volatility. The class argument should be "ar1".
+See the examples below.
+
+6. ARMA(2,1) process, i.e. the \link{arma} class. For the ARMA(2,1) process, the
+\code{params} should be a list with \code{delta} for the long term mean,
+\code{delta0} for the initial value of the process, \code{phi1} for the AR(1)
+coefficient, \code{phi2} for the AR(2) coefficient, \code{theta1} for the MA(1)
+coefficient and \code{sigma} for the local volatility. The class argument should
+be "arma".
 }
 \details{
-For information on how to use the \code{iratemodel} function see
-the examples.
-
 Define:
 
 \deqn{y(t) = int_{0}^{t} \delta_{s}}
 \deqn{pv(t) = exp{-y(t)}}
 
-The functions \code{y.ev}, \code{y.var} and \code{y.cov} are available for each class.
+For each class, several functions are available.
+
+The \code{delta.ev} function can be used to calculate the expected value of the
+interest rate process at time \code{t}, the \code{delta.var} function can be
+used to calculate of the interest rate process at time \code{t} and 
+\code{delta.cov} can be used to calculate the covariance of the interest rate
+process at two times \code{s} and \code{t}.
+
+The \code{y.ev} function can be used to calculate the expected value of the
+y at time \code{t}, the \code{y.var} function can be
+used to calculate of variance of y at time \code{t} and 
+\code{y.cov} can be used to calculate the covariance of
+y at two times \code{s} and \code{t}.
+
+The \code{pv.moment} can be used to calculate the raw moments of the 
+present value random variable, \code{pv.ev} can be used to calculate
+the expected value of the present value random varaible, \code{pv.var} can be
+used to calculate the variance of the present value random variable and
+\code{pv.cov} can be used to calculate the covariance of the present value
+random variable at two times \code{s} and \code{t}.
+
+The \code{ann.ev} function can be used to calculate the expected value of
+an \code{n}-year annuity and \code{ann.var} can be used to calculate the
+variance of an \code{n}-year annuity.
+
+The \code{iratemodel.convert} function can be used to convert between
+these interest rate models using the principle of covariance equivalence.
+
+Refer to the examples below for how to use these functions.
+}
+\examples{
+## 1. Deterministic interest rate
+determodel = iratemodel(list(delta = 0.06), "determ")
+delta.ev(5, determodel) # expected value
+
+## 2. Wiener process
+wienermodel = iratemodel(list(delta = 0.05, sigma = 0.01), "wiener")
+pv.ev(10, wienermodel) # expected present value
+pv.var(10, wienermodel) # variance of present value
+pv.cov(5,10,wienermodel) # covariance of present value
+
+## 3. Ornstein-Uhlenbeck process
+oumodel = iratemodel(list(delta0 = 0.08, delta = 0.05, 
+alpha = 0.1, sigma = 0.01), "ou")
+delta.ev(5, oumodel)
+delta.var(5, oumodel)
+y.ev(10, oumodel)
+y.var(10, oumodel)
+y.cov(5, 10, oumodel)
+pv.ev(10, oumodel)
+pv.var(10, oumodel)
+pv.cov(5, 10, oumodel)
+
+## 4. Second Order Stochastic Differential Equation
+secondmodel = iratemodel(params = list(alpha1 = -0.50, alpha2 = -0.04, 
+delta0prime = 0.05, delta0 = 0.10, delta = 0.06, sigma = 0.01), "second")
+
+## 5. AR(1) Process
+ar1model = iratemodel(params = list(delta = 0.05, delta0 = 0.08,
+phi1 = 0.90, sigma = 0.01), "ar1")
+delta.ev(5, ar1model)
+delta.var(5, ar1model)
+delta.cov(5, 10, ar1model)
+ann.ev(5, ar1model)
+ann.var(5, ar1model)
+
+## 6. ARMA(2,1) Process
+armamodel = iratemodel(params = list(delta = 0.05, delta0 = 0.08,
+phi1 = 1.05, phi2 = -0.095, theta1 = -0.05, sigma = 0.01), "arma")
+
+## Convert from one model to another
+sdemodel = iratemodel.convert("arma", "second", armamodel, 5)
+armamodel = iratemodel.convert("second", "arma", sdemodel, 5)
+
+oumodel = iratemodel.convert("ar1", "ou", ar1model, 1/12)
+
 }
 \references{
 Parker, Gary. An application of stochastic interest rate models in

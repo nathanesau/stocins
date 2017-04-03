@@ -1,0 +1,835 @@
+\documentclass[12pt]{report}
+
+\usepackage[margin=1.0in]{geometry}
+\usepackage{parskip}
+\usepackage{apacite}
+
+\bibliographystyle{apacite}
+
+\title{\texttt{stocins} Package}
+\author{Nathan Esau}
+\date{\today}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+\chapter{Overview}
+
+This package can be used to analyze the risk of an insurance portfolio using stochastic interest rate models. The focus is on calculating the first three moments of the present value of benefit random variable for a portfolio of endowment or term insurance contracts. Several stochastic interest rate models are implemented including the Wiener process, the Ornstein-Uhlenbeck process and a Second Order Stochastic Differential equation for the force of interest. The references for this package are \cite{parker1992application} and \cite{parker1997stochastic}.
+
+This package implements the following:
+
+\begin{itemize}
+\item Functions for an Wiener process, Ornstein-Uhlenbeck process and Second order stochastic differential equation as shown in Chapter 2 and 3 of \cite{parker1992application}.
+\item Moments and density function for the present value of a term and endowment insurance on a single life as shown in Chapter 4 of \cite{parker1992application}.
+\item The first three moments for a portfolio of term and endowment contracts as shown in Chapter 5 of \cite{parker1992application}.
+\item The first two moments for a group of term and endowment contracts as shown in \cite{parker1997stochastic}.
+\end{itemize}
+
+Various classes implement this functionality:
+
+\begin{itemize}
+\item \texttt{insurance} classes
+\begin{itemize}
+\item \texttt{isingle} classes, i.e. \texttt{termsingle} and \texttt{endowsingle} for a life insurance policy issued to a single life
+\item \texttt{iport} classes, i.e. \texttt{termport} and \texttt{endowport} for a portfolio of identical insurance policies
+\item \texttt{igroup} class for a group of portfolios of insurance policies
+\end{itemize}
+\item \texttt{iratemodel} classes for the force of interest
+\begin{itemize}
+\item \texttt{determ} for the deterministic interest rate
+\item \texttt{wiener} for the wiener process
+\item \texttt{ou} for the Ornstein-Uhlenbeck process
+\item \texttt{second} for the Second Order Stochastic Differential Equation
+\item \texttt{ar1} for the AR(1) process
+\item \texttt{arma} fopr the ARMA(2,1) process
+\end{itemize}
+\end{itemize}
+
+\chapter{Reproducing Parker (1992) Results}
+
+Some results from \cite{parker1992application} are reproduced here.
+
+<<echo=TRUE>>=
+library(stocins)
+@
+
+\section{Interest Rate Models}
+
+First, the Wiener process.
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure21, eval=FALSE>>=
+wienermodel = iratemodel(list(delta = 0.10, sigma = 0.01), 
+                         "wiener")
+
+plot(function(t) delta.ev(t, wienermodel), 0, 50, col = 'black', 
+     ylim = c(-0.05, 0.25), xlab = "time", ylab = "force of interest")
+plot(function(t) delta.ev(t, wienermodel) - 
+       1.645 * sqrt(delta.var(t, wienermodel)), 0, 50, 
+     add = TRUE, lty = 2)
+plot(function(t) delta.ev(t, wienermodel) + 
+       1.645 * sqrt(delta.var(t, wienermodel)), 0, 50, 
+     add = TRUE, lty = 2)
+@
+    
+\begin{figure}[ht]
+\begin{center}
+\vspace{-10mm}
+\includegraphics[width=0.8\textwidth]{images/parkerThesis-figure21}
+\end{center}
+\vspace{-5mm}
+\caption{Figure 2.1 from Parker (1992)}
+\end{figure}
+    
+Next, the Ornstein-Uhlenbeck process.  
+  
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure22, eval=FALSE>>= 
+oumodel = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+    alpha = 0.1, sigma = 0.01), "ou")
+
+plot(function(t) delta.ev(t, oumodel), 0, 50, col = 'black', 
+     ylim = c(0, 0.12), xlab = "time", ylab = "force of interest")
+plot(function(t) delta.ev(t, oumodel) - 
+       1.645 * sqrt(delta.var(t, oumodel)), 0, 50, 
+     add = TRUE, lty = 2)
+plot(function(t) delta.ev(t, oumodel) + 
+       1.645 * sqrt(delta.var(t, oumodel)), 0, 50, 
+     add = TRUE, lty = 2)
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-10mm}
+\includegraphics[width=0.8\textwidth]{images/parkerThesis-figure22}
+\end{center}
+\vspace{-5mm}
+\caption{Figure 2.2 from Parker (1992)}
+\end{figure}
+
+Next, the second order stochastic differential equation.
+     
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure23, eval=FALSE>>=
+secondmodel = iratemodel(params = list(alpha1 = -0.50, alpha2 = -0.04, 
+  delta0prime = 0.05, delta0 = 0.10, delta = 0.06, sigma = 0.01), "second")
+     
+plot(function(t) delta.ev(t, secondmodel), 0, 50, col = 'black', 
+     ylim = c(-0.05, 0.25), xlab = "time", ylab = "force of interest")
+plot(function(t) delta.ev(t, secondmodel) - 
+       1.645 * sqrt(delta.var(t, secondmodel)), 0, 50, 
+     add = TRUE, lty = 2)
+plot(function(t) delta.ev(t, secondmodel) + 
+       1.645 * sqrt(delta.var(t, secondmodel)), 0, 50, 
+     add = TRUE, lty = 2)
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-10mm}
+\includegraphics[width=0.8\textwidth]{images/parkerThesis-figure23}
+\end{center}
+\vspace{-5mm}
+\caption{Figure 2.3 from Parker (1992)}
+\end{figure}
+
+\section{Present Value}
+
+First, the expected value plots with varying $\alpha$.
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure31a, eval=FALSE>>=
+irm = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+    alpha = 0.1, sigma = 0.01), "ou")
+
+g <- expand.grid(x = seq(0, 100, 5), y = seq(0.05, 0.5, 0.05))
+
+for(i in 1:nrow(g))
+{
+  irm = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+    alpha = g$y[i], sigma = 0.01), "ou")
+  g$z[i] = pv.moment(1, t = g$x[i], irm)
+}
+
+lattice::wireframe(z ~ x * y, data = g, drape = TRUE, col = 'black',
+           col.regions = 'white', aspect = c(1, 0.65),
+           colorkey = FALSE, xlab = "t", ylab = expression(alpha),
+           zlab = "", screen = list(z = 340, x = -70, y = -20),
+           scales = list(arrows = FALSE, col = 'black', font = 10),
+           cex = 0.8, ylim = c(0.00, 0.50),
+           par.settings = list(regions=list(alpha = 0.3),
+           axis.line = list(col = "transparent")), zoom = 0.95)
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-10mm}
+\includegraphics[width=0.8\textwidth]{images/parkerThesis-figure31a}
+\end{center}
+\vspace{-5mm}
+\caption{Figure 3.1(a)from Parker (1992)}
+\end{figure}
+
+Next, the expected value plot with varying $\sigma$.
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure31b, eval=FALSE>>=
+g <- expand.grid(x = seq(0, 100, 5), y = seq(0, 0.03, 0.005) + 0.001)
+
+for(i in 1:nrow(g))
+{
+  irm = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+    alpha = 0.1, sigma = g$y[i]), "ou")
+  g$z[i] = pv.moment(1, t = g$x[i], irm)
+}
+
+lattice::wireframe(z ~ x * y, data = g, drape = TRUE, col = 'black',
+           col.regions = 'white', aspect = c(1, 0.65),
+           colorkey = FALSE, xlab = "t", ylab = expression(sigma),
+           zlab = "", screen = list(z = 340, x = -70, y = -20),
+           scales = list(arrows = FALSE, col = 'black', font = 10),
+           cex = 0.8, ylim = c(0.00, 0.03) + 0.001,
+           par.settings = list(regions=list(alpha = 0.3),
+           axis.line = list(col = "transparent")), zoom = 0.95)
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-10mm}
+\includegraphics[width=0.8\textwidth]{images/parkerThesis-figure31b}
+\end{center}
+\vspace{-5mm}
+\caption{Figure 3.1(b) from Parker (1992)}
+\end{figure}
+
+Next, the standard deviation plot with varying $\alpha$.
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure32a, eval=FALSE>>=
+g <- expand.grid(x = seq(0, 100, 5), y = seq(0.05, 0.5, 0.05))
+
+for(i in 1:nrow(g))
+{
+  irm = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+    alpha = g$y[i], sigma = 0.01), "ou")
+  g$z[i] = sqrt(pv.var(t = g$x[i], irm))
+}
+
+lattice::wireframe(z ~ x * y, data = g, drape = TRUE, col = 'black',
+           col.regions = 'white', aspect = c(1, 0.65),
+           colorkey = FALSE, xlab = "t", ylab = expression(alpha),
+           zlab = "", screen = list(z = 340, x = -70, y = -20),
+           scales = list(arrows = FALSE, col = 'black', font = 10),
+           cex = 0.8, ylim = c(0.00, 0.50),
+           par.settings = list(regions=list(alpha = 0.3),
+           axis.line = list(col = "transparent")), zoom = 0.95)
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-10mm}
+\includegraphics[width=0.8\textwidth]{images/parkerThesis-figure32a}
+\end{center}
+\vspace{-5mm}
+\caption{Figure 3.2(a) from Parker (1992)}
+\end{figure}
+
+Next, the stnadard deviation plot with varying $\sigma$.
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure32b, eval=FALSE>>=
+g <- expand.grid(x = seq(0, 100, 5), y = seq(0, 0.025, 0.005) + 0.001)
+
+for(i in 1:nrow(g))
+{
+  irm = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+    alpha = 0.1, sigma = g$y[i]), "ou")
+  g$z[i] = sqrt(pv.var(t = g$x[i], irm))
+}
+
+lattice::wireframe(z ~ x * y, data = g, drape = TRUE, col = 'black',
+           col.regions = 'white', aspect = c(1, 0.65),
+           colorkey = FALSE, xlab = "t", ylab = expression(sigma),
+           zlab = "", screen = list(z = 340, x = -70, y = -20),
+           scales = list(arrows = FALSE, col = 'black', font = 10),
+           cex = 0.8, ylim = c(0.00, 0.025) + 0.001,
+           par.settings = list(regions=list(alpha = 0.3),
+           axis.line = list(col = "transparent")), zoom = 0.95)
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-10mm}
+\includegraphics[width=0.8\textwidth]{images/parkerThesis-figure32b}
+\end{center}
+\vspace{-5mm}
+\caption{Figure 3.2(b) from Parker (1992)}
+\end{figure}
+
+Next, the skewness plot with varying $\alpha$.
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure33a, eval=FALSE>>= 
+pv.sk <- function(t, irm) 
+{
+  u1 = pv.moment(t, 1, irm)
+  u2 = pv.moment(t, 2, irm)
+  u3 = pv.moment(t, 3, irm)
+
+  num = u3 - 3*u2*u1 + 2*u1^3
+  den = pv.var(t, irm)^(3/2)
+
+  num / den
+}
+
+g <- expand.grid(x = seq(0, 100, 5), y = seq(0.05, 0.5, 0.05))
+
+for(i in 1:nrow(g))
+{
+  irm = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+    alpha = g$y[i], sigma = 0.01), "ou")
+  g$z[i] = pv.sk(t = g$x[i], irm)
+}
+
+lattice::wireframe(z ~ x * y, data = g, drape = TRUE, col = 'black',
+           col.regions = 'white', aspect = c(1, 0.65),
+           colorkey = FALSE, xlab = "t", ylab = expression(alpha),
+           zlab = "", screen = list(z = 340, x = -70, y = -20),
+           scales = list(arrows = FALSE, col = 'black', font = 10),
+           cex = 0.8, ylim = c(0.00, 0.50),
+           par.settings = list(regions=list(alpha = 0.3),
+           axis.line = list(col = "transparent")), zoom = 0.925)
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-10mm}
+\includegraphics[width=0.8\textwidth]{images/parkerThesis-figure33a}
+\end{center}
+\vspace{-5mm}
+\caption{Figure 3.3(a) from Parker (1992)}
+\end{figure}
+
+Next, the skewness plot with varying $\sigma$.
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure33b, eval=FALSE>>=
+g <- expand.grid(x = seq(0, 100, 5), y = seq(0, 0.03, 0.005) + 0.001)
+
+for(i in 1:nrow(g))
+{
+  irm = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+    alpha = 0.1, sigma = g$y[i]), "ou")
+  g$z[i] = pv.sk(t = g$x[i], irm)
+}
+
+lattice::wireframe(z ~ x * y, data = g, drape = TRUE, col = 'black',
+           col.regions = 'white', aspect = c(1, 0.65),
+           colorkey = FALSE, xlab = "t", ylab = expression(sigma),
+           zlab = "", screen = list(z = 340, x = -70, y = -20),
+           scales = list(arrows = FALSE, col = 'black', font = 10),
+           cex = 0.8, ylim = c(0.00, 0.03) + 0.001,
+           par.settings = list(regions=list(alpha = 0.3),
+           axis.line = list(col = "transparent")), zoom = 0.925)
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-10mm}
+\includegraphics[width=0.8\textwidth]{images/parkerThesis-figure33b}
+\end{center}
+\vspace{-5mm}
+\caption{Figure 3.3(b) from Parker (1992)}
+\end{figure}
+
+\section{Single Life Insurance}
+
+First, the expected value plot.
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure41, eval=FALSE>>=
+g = expand.grid(x = seq(20, 70, 10), y = seq(1, 75, 10))
+g$z = 0
+
+oumodel = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+                          alpha = 0.1, sigma = 0.01), "ou")
+
+for(i in 1:nrow(g)) {
+  term = insurance(list(n = g$y[i], d = 1), "isingle", "term")
+  mort = mortassumptions(list(x = g$x[i], table = "MaleMort82"))
+  g$z[i] = z.moment(1, term, mort, oumodel)
+}
+
+lattice::wireframe(z ~ x * y, data = g, drape = TRUE, col = 'black',
+	col.regions = 'white', aspect = c(1.0, 0.8), colorkey = FALSE,
+	xlab = "issue age", ylab = "n", zlab = "", 
+	screen = list(z = 340, x = -70),
+    scales = list(arrows = FALSE, col="black", font = 10, cex= 1.0),
+	par.settings = list(regions=list(alpha = 0.3),
+		axis.line = list(col = "transparent")),
+	zoom = 0.95, zlim = c(0,0.50))
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-15mm}
+\includegraphics[width=0.75\textwidth]{images/parkerThesis-figure41}
+\end{center}
+\vspace{-7mm}
+\caption{Figure 4.1 from Parker (1992)}
+\end{figure}
+
+Next, the standard deviation plot.
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure42, eval=FALSE>>=
+g <- expand.grid(x = seq(1, 80, 5), y = seq(20, 70, 10))
+
+for(i in 1:nrow(g)) {
+  term = insurance(list(n = g$x[i], d = 1), "isingle", "term")
+  mort = mortassumptions(list(x = g$y[i], table = "MaleMort82"))
+  g$z[i] = z.sd(term, mort, oumodel)
+}
+
+lattice::wireframe(z ~ x * y, data = g, drape = TRUE, col = 'black',
+                    col.regions = 'white', aspect = c(1, 0.8),
+                    colorkey = FALSE, xlab = "n", ylab = "issue age",
+                    zlab = "", screen = list(z = 340, x = -70, y = -20),
+                    scales = list(arrows = FALSE, col = 'black', font = 10),
+                    cex = 0.8, ylim = c(20, 70),
+                    zlim = c(0, 0.40),
+                    par.settings = list(regions=list(alpha = 0.3),
+                    axis.line = list(col = "transparent")), zoom = 0.95)
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-15mm}
+\includegraphics[width=0.9\textwidth]{images/parkerThesis-figure42}
+\end{center}
+\vspace{-7mm}
+\caption{Figure 4.2 from Parker (1992)}
+\end{figure}
+
+Next, the skewness plot.
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure43, eval=FALSE>>=
+g <- expand.grid(x = seq(1, 70, 5), y = seq(20, 70, 10))
+
+for(i in 1:nrow(g)) {
+  term = insurance(list(n = g$x[i], d = 1), "isingle", "term")
+  mort = mortassumptions(list(x = g$y[i], table = "MaleMort82"))
+  g$z[i] = z.sk(term, mort, oumodel)
+}
+
+lattice::wireframe(z ~ y * x, data = g, drape = TRUE, col = 'black',
+                    col.regions = 'white', aspect = c(1, 0.8),
+                    colorkey = FALSE, xlab = "issue age", ylab = "n",
+                    zlab = "", screen = list(z = 340, x = -70, y = -20),
+                    scales = list(arrows = FALSE, col = 'black', font = 10),
+                    cex = 0.8, zlim = c(0, 30), ylim= c(0,70),
+                    par.settings = list(regions=list(alpha = 0.3),
+                    axis.line = list(col = "transparent")), zoom = 0.95)
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-15mm}
+\includegraphics[width=0.95\textwidth]{images/parkerThesis-figure43}
+\end{center}
+\vspace{-7mm}
+\caption{Figure 4.3 from Parker (1992)}
+\end{figure}
+
+Next, the pdf plot.
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure44, eval=FALSE>>=
+oumodel = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+                          alpha = 0.1, sigma = 0.01), "ou")
+
+term5 = insurance(list(n = 5, d = 1), "isingle", "term")
+mort = mortassumptions(list(x = 30, table = "MaleMort82"))
+  
+term25 = insurance(list(n = 25, d = 1), "isingle", "term")
+mort = mortassumptions(list(x = 30, table = "MaleMort82"))
+
+plot(function(z) z.pdf(z, term5, mort, oumodel), 0.01, 1.0,
+     ylim = c(0, 0.4), lty = 1, xlab = "z", ylab = "f(z)")
+     
+plot(function(z) z.pdf(z, term25, mort, oumodel), 0.01, 1.0,
+     ylim = c(0, 0.4), add = TRUE, lty = 2)
+
+legend('topright', leg = c(paste0("term 25 [P(Z=0) = ", 
+                                 round(kpx(25, mort),5), "]"),
+                           paste0("term 5   [P(Z=0) = ", 
+                                 round(kpx(5, mort),5), "]")),
+       lty = c(2,1), cex = 0.8)
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-15mm}
+\includegraphics[width=0.9\textwidth]{images/parkerThesis-figure44}
+\end{center}
+\vspace{-7mm}
+\caption{Figure 4.4 from Parker (1992)}
+\end{figure}
+
+For an endowment insurance, the expected value plot.
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure45, eval=FALSE>>=
+library(stocins)
+g = expand.grid(x = seq(20, 70, 10), y = seq(1, 75, 10))
+g$z = 0
+
+oumodel = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+                          alpha = 0.1, sigma = 0.01), "ou")
+
+for(i in 1:nrow(g)) {
+  endow = insurance(list(n = g$y[i], d = 1, e = 1), "isingle", "endow")
+  mort = mortassumptions(list(x = g$x[i], table = "MaleMort82"))
+  g$z[i] = z.moment(1, endow, mort, oumodel)
+}
+
+lattice::wireframe(z ~ x * y, data = g, drape = TRUE, col = 'black',
+	col.regions = 'white', aspect = c(1.0, 0.8), colorkey = FALSE,
+	xlab = "issue age", ylab = "n", zlab = "", 
+	screen = list(z = 340, x = -70),
+    scales = list(arrows = FALSE, col="black", font = 10, cex= 1.0),
+	par.settings = list(regions=list(alpha = 0.3),
+		axis.line = list(col = "transparent")),
+	zoom = 0.95, zlim = c(0,1.00))
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-15mm}
+\includegraphics[width=0.8\textwidth]{images/parkerThesis-figure45}
+\end{center}
+\vspace{-7mm}
+\caption{Figure 4.5 from Parker (1992)}
+\end{figure}
+
+Next, the standard deviation plot.
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure46, eval=FALSE>>=
+g <- expand.grid(x = seq(1, 80, 5), y = seq(20, 70, 10))
+
+for(i in 1:nrow(g)) {
+  endow = insurance(list(n = g$x[i], d = 1, e = 1), "isingle", "endow")
+  mort = mortassumptions(list(x = g$y[i], table = "MaleMort82"))
+  g$z[i] = z.sd(endow, mort, oumodel)
+}
+
+lattice::wireframe(z ~ x * y, data = g, drape = TRUE, col = 'black',
+                    col.regions = 'white', aspect = c(1, 0.8),
+                    colorkey = FALSE, xlab = "n", ylab = "issue age",
+                    zlab = "", screen = list(z = 340, x = -70, y = -20),
+                    scales = list(arrows = FALSE, col = 'black', font = 10),
+                    cex = 0.8, ylim = c(20, 70),
+                    zlim = c(0, 0.25),
+                    par.settings = list(regions=list(alpha = 0.3),
+                    axis.line = list(col = "transparent")), zoom = 0.95)
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-15mm}
+\includegraphics[width=0.9\textwidth]{images/parkerThesis-figure46}
+\end{center}
+\vspace{-7mm}
+\caption{Figure 4.6 from Parker (1992)}
+\end{figure}
+
+Next, the skewness plot.
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure47, eval=FALSE>>=
+g <- expand.grid(x = seq(1, 70, 5), y = seq(20, 70, 10))
+
+for(i in 1:nrow(g)) {
+  endow = insurance(list(n = g$x[i], d = 1, e = 1), "isingle", "endow")
+  mort = mortassumptions(list(x = g$y[i], table = "MaleMort82"))
+  g$z[i] = z.sk(endow, mort, oumodel)
+}
+
+lattice::wireframe(z ~ y * x, data = g, drape = TRUE, col = 'black',
+                    col.regions = 'white', aspect = c(1, 0.8),
+                    colorkey = FALSE, xlab = "issue age", ylab = "n",
+                    zlab = "", screen = list(z = 340, x = -70, y = -20),
+                    scales = list(arrows = FALSE, col = 'black', font = 10),
+                    cex = 0.8, zlim = c(0, 6), ylim= c(0,70),
+                    par.settings = list(regions=list(alpha = 0.3),
+                    axis.line = list(col = "transparent")), zoom = 0.95)
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-15mm}
+\includegraphics[width=0.95\textwidth]{images/parkerThesis-figure47}
+\end{center}
+\vspace{-7mm}
+\caption{Figure 4.7 from Parker (1992)}
+\end{figure}
+
+Next, the pdf plot.
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure48, eval=FALSE>>=
+oumodel = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+                          alpha = 0.1, sigma = 0.01), "ou")
+
+endow5 = insurance(list(n = 5, d = 1, e = 1), "isingle", "endow")
+mort = mortassumptions(list(x = 30, table = "MaleMort82"))
+  
+endow25 = insurance(list(n = 25, d = 1, e = 1), "isingle", "endow")
+mort = mortassumptions(list(x = 30, table = "MaleMort82"))
+
+plot(function(z) z.pdf(z, endow5, mort, oumodel), 0.01, 1.0,
+     ylim = c(0, 12), lty = 1, xlab = "z", ylab = "f(z)")
+     
+plot(function(z) z.pdf(z, endow25, mort, oumodel), 0.01, 1.0,
+     ylim = c(0, 12), add = TRUE, lty = 2)
+
+legend('topright', leg = c("endow 25", "endow 5"),
+       lty = c(2,1), cex = 0.8)
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-15mm}
+\includegraphics[width=1.0\textwidth]{images/parkerThesis-figure48}
+\end{center}
+\vspace{-7mm}
+\caption{Figure 4.8 from Parker (1992)}
+\end{figure}
+
+Some numerical results are reproduced below.
+
+<<echo=TRUE, results=tex>>=
+library(stocins)
+library(xtable)
+
+oumodel = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+                          alpha = 0.1, sigma = 0.01), "ou")
+
+wholelife = insurance(list(n = 100, d = 1), "isingle", "term")
+
+x = c(20,30,40,50,60,70,80,90,100)
+first = numeric(length(x))
+sdev = numeric(length(x))
+skew = numeric(length(x))
+
+for(i in 1:length(x)) {
+  mort = mortassumptions(list(x = x[i], table = "MaleMort82"))
+  first[i] = z.moment(1, wholelife, mort, oumodel)
+  sdev[i] = z.sd(wholelife, mort, oumodel)
+  skew[i] = z.sk(wholelife, mort, oumodel)
+}
+
+table41 = data.frame(Age = x, Mean = first, 
+                     "Standard Deviation" = sdev,
+                     "Skewness" = skew, 
+                     "Coefficient of Variation" = sdev/first)
+print(xtable(table41, 
+      digits = c(0,0,6,6,6,6), 
+      caption = "Table 4.1 from Parker (1992)"),
+      include.rownames = FALSE)
+@
+
+The pdf for a whole life insurance is shown below.
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=figure49, eval=FALSE>>=
+oumodel = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+                          alpha = 0.1, sigma = 0.01), "ou")
+
+whole = insurance(list(n = 100, d = 1, e = 1), "isingle", "term")
+mort = mortassumptions(list(x = 30, table = "MaleMort82"))
+
+plot(function(z) z.pdf(z, whole, mort, oumodel), 0.00001, 1.0,
+     ylim = c(0, 15), lty = 1, xlab = "z", ylab = "f(z)")
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-15mm}
+\includegraphics[width=0.9\textwidth]{images/parkerThesis-figure49}
+\end{center}
+\vspace{-7mm}
+\caption{Figure 4.9 from Parker (1992)}
+\end{figure}
+
+\section{Portfolio of Policies}
+
+Some results for a portfolio of policies are reproduced below.
+
+<<echo=TRUE, fig=TRUE, eval=FALSE, include=FALSE, label=figure51>>=
+oumodel = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+                          alpha = 0.1, sigma = 0.01), "ou")
+
+mort = mortassumptions(list(x = 30, table = "MaleMort82"))
+
+n = seq(1,70,1)
+sdev1 = numeric(length(n))
+sdev10 = numeric(length(n))
+sdev100 = numeric(length(n))
+sdev1000 = numeric(length(n))
+sdevInf = numeric(length(n))
+
+for(i in 1:length(n))
+{
+  term = insurance(list(n=n[i], d=1), "isingle", "term")
+  port1 = insurance(list(single = term, c = 1), "iport", "term")
+  port10 = insurance(list(single = term, c = 10), "iport", "term")
+  port100 = insurance(list(single = term, c = 100), "iport", "term")
+  port1000 = insurance(list(single = term, c = 1000), "iport", "term")
+  portInf = insurance(list(single = term, c = 1e18), "iport", "term")
+  
+  sdev1[i] = z.sd(port1,mort,oumodel)
+  sdev10[i] = z.sd(port10,mort,oumodel)
+  sdev100[i] = z.sd(port100,mort,oumodel)
+  sdev1000[i] = z.sd(port1000,mort,oumodel)
+  sdevInf[i] = z.sd(portInf,mort,oumodel)
+}
+
+plot(x = n, y = sdev1, type = 'l', ylab = "sd", xlab = "n", 
+     ylim = c(0, 0.15))
+lines(x = n, y = sdev10/10, type = 'l', lty = 2)
+lines(x = n, y = sdev100/100, type = 'l', lty = 3)
+lines(x = n, y = sdev1000/1000, type = 'l', lty = 4)
+lines(x = n, y = sdevInf/1e18, type = 'l', lty = 5)
+
+legend('topright', leg = c("c=1","c=10","c=100","c=1000","c=Inf"),
+       lty = c(1,2,3,4,5), ncol = 5, cex = 0.9)
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-10mm}
+\includegraphics[width=0.8\textwidth]{images/parkerThesis-figure51}
+\end{center}
+\vspace{-5mm}
+\caption{Figure 5.1 from Parker (1992)}
+\end{figure}
+
+The standard deviation for an endowment policy is below.
+
+<<echo=TRUE, fig=TRUE, eval=FALSE, include=FALSE, label=figure53>>=
+oumodel = iratemodel(list(delta0 = 0.1, delta = 0.06, 
+                          alpha = 0.1, sigma = 0.01), "ou")
+
+mort = mortassumptions(list(x = 30, table = "MaleMort82"))
+
+n = seq(1,70,1)
+sdev1 = numeric(length(n))
+sdev10 = numeric(length(n))
+sdev100 = numeric(length(n))
+sdev1000 = numeric(length(n))
+sdevInf = numeric(length(n))
+
+for(i in 1:length(n))
+{
+  endow = insurance(list(n=n[i], d=1, e=1), "isingle", "endow")
+  port1 = insurance(list(single = endow, c = 1), "iport", "endow")
+  port10 = insurance(list(single = endow, c = 10), "iport", "endow")
+  port100 = insurance(list(single = endow, c = 100), "iport", "endow")
+  port1000 = insurance(list(single = endow, c = 1000), "iport", "endow")
+  portInf = insurance(list(single = endow, c = 1e18), "iport", "endow")
+  
+  sdev1[i] = z.sd(port1,mort,oumodel)
+  sdev10[i] = z.sd(port10,mort,oumodel)
+  sdev100[i] = z.sd(port100,mort,oumodel)
+  sdev1000[i] = z.sd(port1000,mort,oumodel)
+  sdevInf[i] = z.sd(portInf,mort,oumodel)
+}
+
+plot(x = n, y = sdev1, type = 'l', ylab = "sd", xlab = "n", 
+     ylim = c(0, 0.15))
+lines(x = n, y = sdev10/10, type = 'l', lty = 2)
+lines(x = n, y = sdev100/100, type = 'l', lty = 3)
+lines(x = n, y = sdev1000/1000, type = 'l', lty = 4)
+lines(x = n, y = sdevInf/1e18, type = 'l', lty = 5)
+
+legend('topright', leg = c("c=1","c=10","c=100","c=1000","c=Inf"),
+       lty = c(1,2,3,4,5), ncol = 5, cex = 0.9)
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-10mm}
+\includegraphics[width=0.8\textwidth]{images/parkerThesis-figure53}
+\end{center}
+\vspace{-5mm}
+\caption{Figure 5.3 from Parker (1992)}
+\end{figure}
+
+\chapter{Reproducing Parker (1997) Results}
+
+Some results from Table 6 of \cite{parker1997stochastic} are reproduced here.
+
+<<echo=TRUE>>=
+oumodel = iratemodel(list(delta0 = 0.08, delta = 0.06,
+                          alpha = 0.1, sigma = 0.01), "ou")
+@
+
+\section{Insurance and Investment Risk}
+
+<<echo=TRUE>>=
+s1 = insurance(list(n=10, d=50,  e=50), "isingle", "endow")
+s2 = insurance(list(n=5,  d=100, e=50), "isingle", "endow")
+s3 = insurance(list(n=10, d=150, e=0),  "isingle", "endow")
+s4 = insurance(list(n=10, d=50,  e=0),  "isingle", "endow")
+s5 = insurance(list(n=10, d=100, e=100),"isingle", "endow")
+s6 = insurance(list(n=5,  d=75,  e=0),  "isingle", "endow")
+s7 = insurance(list(n=5,  d=25,  e=0),  "isingle", "endow")
+s8 = insurance(list(n=10, d=50,  e=50), "isingle", "endow")
+
+m1 = mortassumptions(list(x = 30, table = "MaleMort82"))
+m2 = mortassumptions(list(x = 35, table = "MaleMort82"))
+m3 = mortassumptions(list(x = 50, table = "MaleMort82"))
+m4 = mortassumptions(list(x = 30, table = "FemaleMort82"))
+m5 = mortassumptions(list(x = 40, table = "FemaleMort82"))
+m6 = mortassumptions(list(x = 40, table = "MaleMort82Reduced"))
+m7 = mortassumptions(list(x = 45, table = "FemaleMort82Reduced"))
+m8 = mortassumptions(list(x = 55, table = "FemaleMort82"))
+
+p1 = insurance(list(single = s1, c = 1000), "iport", "endow")
+p2 = insurance(list(single = s2, c = 2500), "iport", "endow")
+p3 = insurance(list(single = s3, c = 2000), "iport", "endow")
+p4 = insurance(list(single = s4, c = 1500), "iport", "endow")
+p5 = insurance(list(single = s5, c = 500), "iport", "endow")
+p6 = insurance(list(single = s6, c = 2500), "iport", "endow")
+p7 = insurance(list(single = s7, c = 3000), "iport", "endow")
+p8 = insurance(list(single = s8, c = 500), "iport", "endow")
+
+insgroup = insurance(list(p1, p2, p3, p4, p5, p6, p7, p8),
+                     "igroup")
+
+mortgroup = list(m1, m2, m3, m4, m5, m6, m7, m8)
+
+z.moment(1, insgroup, mortgroup, oumodel) / insgroup$c
+z.moment(2, insgroup, mortgroup, oumodel) / insgroup$c^2
+z.sd(insgroup, mortgroup, oumodel) / insgroup$c
+z.invrisk(insgroup, mortgroup, oumodel) / insgroup$c^2
+z.insrisk(insgroup, mortgroup, oumodel) / insgroup$c^2
+@
+
+\chapter{Other Demonstrations}
+
+Some other functionality of the \texttt{stocins} package is shown here.
+
+\section{Survival Models}
+
+<<echo=TRUE, fig=TRUE, include=FALSE, label=survivalplot, eval=FALSE>>=
+mort = mortassumptions(list(x = 40, table = "MaleMort82"))
+
+plot(x = seq(0, 70, 1), y = kpx(seq(0, 70, 1), mort), xlab = "k",
+     ylab = "kpx", type = 'l')
+@
+
+\begin{figure}[ht]
+\begin{center}
+\vspace{-10mm}
+\includegraphics[width=0.8\textwidth]{images/survivalplot}
+\end{center}
+\vspace{-5mm}
+\caption{Example of a survival probability plot created using the \texttt{stocins} package}
+\end{figure}
+
+\bibliography{sources}
+
+\end{document}
