@@ -4,9 +4,7 @@ Title: Stochastic Interest Rate Models for Life Insurance
 Version: 0.1.0
 Author: Nathan Esau
 Maintainer: Nathan <nesau@sfu.ca>
-Description: This package can be used to analyze the risk of an insurance
-portfolio using stochastic interest rate models. The focus is on calculating
-the first three moments of the present value of benefit random variable
+Description: This package can be used to analyze the risk of an insurance portfolio using stochastic interest rate models. The focus is on calculating the first three moments of the present value of benefit random variable for a portfolio of endowment or term insurance contracts. Several stochastic interest rate models are implemented including the Wiener process, the Ornstein-Uhlenbeck process and a Second Order Stochastic Differential equation for the force of interest. The references for this package are (1) Parker, Gary (1992) An application of stochastic interest rate models in life assurance and (2) Parker, Gary (1997) Stochastic analysis of the interaction between investment and insurance risks.
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
